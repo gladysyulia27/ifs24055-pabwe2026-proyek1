@@ -69,12 +69,13 @@ describe("Modal Forms (Complex UI Components)", () => {
         />
       );
 
-      const submitButton = screen.getByRole("button", { name: /kirim pengajuan/i });
-      fireEvent.click(submitButton);
+      const form = screen.getByRole("button", { name: /kirim pengajuan/i }).closest("form")!;
+      fireEvent.submit(form);
 
       await waitFor(() => {
         expect(screen.getByText("Tujuan peminjaman wajib diisi.")).toBeInTheDocument();
       });
+      expect(onErrorToast).toHaveBeenCalledWith("Tujuan peminjaman wajib diisi.");
       expect(onSubmit).not.toHaveBeenCalled();
     });
   });
