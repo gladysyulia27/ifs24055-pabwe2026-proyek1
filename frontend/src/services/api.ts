@@ -16,45 +16,39 @@ export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000
 
 const TOKEN_KEY = "bem_inventory_token";
 
+let inMemoryToken: string | null = null;
+
 /**
  * Retrieves authentication token.
- * Prefers Secure Cookie for CSRF/XSS resistance, falling back to local storage if cookies disabled.
- * Note: When backend supports Set-Cookie with httpOnly, tokens are transported automatically.
+ * Reads from Secure Cookie, falling back to in-memory state.
+ * Never stores authentication tokens in localStorage to protect against persistent XSS exfiltration.
  */
 export function getStoredToken(): string | null {
-  if (typeof window === "undefined") return null;
+  if (typeof window === "undefined") return inMemoryToken;
   // 1. Check document cookie
   const match = document.cookie.match(new RegExp(`(^|;\\s*)${TOKEN_KEY}=([^;]+)`));
-  if (match) return decodeURIComponent(match[2]);
-  // 2. Safe fallback
-  try {
-    return localStorage.getItem(TOKEN_KEY);
-  } catch {
-    return null;
+  if (match) {
+    const token = decodeURIComponent(match[2]);
+    inMemoryToken = token;
+    return token;
   }
+  // 2. In-memory fallback
+  return inMemoryToken;
 }
 
 export function setStoredToken(token: string): void {
+  inMemoryToken = token;
   if (typeof window !== "undefined") {
     // Set cookie with SameSite and secure path
     const isSecure = window.location.protocol === "https:" ? "; Secure" : "";
     document.cookie = `${TOKEN_KEY}=${encodeURIComponent(token)}; path=/; max-age=604800; SameSite=Lax${isSecure}`;
-    try {
-      localStorage.setItem(TOKEN_KEY, token);
-    } catch {
-      // In case localStorage is blocked by user privacy settings
-    }
   }
 }
 
 export function removeStoredToken(): void {
+  inMemoryToken = null;
   if (typeof window !== "undefined") {
     document.cookie = `${TOKEN_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
-    try {
-      localStorage.removeItem(TOKEN_KEY);
-    } catch {
-      // safe fallback
-    }
   }
 }
 

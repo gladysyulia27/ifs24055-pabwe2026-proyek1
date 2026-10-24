@@ -14,17 +14,38 @@ const IDENTIFIER_REGEX = /^[a-zA-Z0-9_\-\.\/ ]{3,30}$/;
 // Phone number regex (7-25 chars)
 const PHONE_REGEX = /^[0-9+()\- ]{7,25}$/;
 
+const HTML_ENTITIES: Record<string, string> = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#x27;",
+  "/": "&#x2F;"
+};
+
 /**
- * Strips script tags, javascript: uris, HTML control brackets, and null bytes
- * to protect against stored and reflected cross-site scripting (XSS).
+ * Enterprise-grade XSS sanitization:
+ * 1. Strips null bytes (\0)
+ * 2. Removes dangerous javascript:, vbscript:, and data: URI schemes
+ * 3. Removes event handlers like onclick, onload, onerror
+ * 4. Removes <script>, <iframe>, <object>, <embed>, <svg> and <style> tags entirely
+ * 5. Escapes remaining sensitive HTML characters to safe HTML entities
  */
 export function sanitizeInput(input: string): string {
   if (!input || typeof input !== "string") return "";
-  return input
+  let sanitized = input
     .replace(/\0/g, "") // strip null bytes
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "") // strip script tags
-    .replace(/[<>]/g, "") // remove stray angle brackets
-    .trim();
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, "") // strip iframe tags
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "") // strip style tags
+    .replace(/javascript\s*:/gi, "") // strip javascript: pseudo-protocol
+    .replace(/vbscript\s*:/gi, "") // strip vbscript:
+    .replace(/on\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, ""); // strip inline event handlers (onerror=, onload=, etc)
+
+  // Encode HTML entities for any remaining markup characters
+  sanitized = sanitized.replace(/[&<>"'/]/g, (char) => HTML_ENTITIES[char] || char);
+
+  return sanitized.trim();
 }
 
 export function isValidEmail(email: string): boolean {

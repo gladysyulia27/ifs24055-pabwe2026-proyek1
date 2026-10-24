@@ -171,9 +171,14 @@ describe("Validation Utilities (Synchronized with Backend)", () => {
   });
 
   describe("sanitizeInput (XSS prevention)", () => {
-    it("strips script tags and angular braces", () => {
+    it("strips script tags and encodes dangerous HTML characters", () => {
       expect(sanitizeInput("<script>alert('xss')</script>Kamera")).toBe("Kamera");
-      expect(sanitizeInput("<b>Proyektor</b>")).toBe("bProyektor/b");
+      expect(sanitizeInput("<b>Proyektor</b>")).toBe("&lt;b&gt;Proyektor&lt;&#x2F;b&gt;");
+    });
+
+    it("strips inline event handlers and pseudo-protocols", () => {
+      expect(sanitizeInput('<img src="x" onerror="alert(1)">')).toBe('&lt;img src=&quot;x&quot; &gt;');
+      expect(sanitizeInput('javascript:alert(1)')).toBe('alert(1)');
     });
 
     it("handles empty or non-string gracefully", () => {

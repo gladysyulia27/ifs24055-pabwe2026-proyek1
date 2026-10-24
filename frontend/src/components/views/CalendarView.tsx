@@ -4,9 +4,7 @@ import React from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Loan } from "@/types";
 import { PageHeader } from "@/components/common/PageHeader";
-import { toDateKey } from "@/utils/date";
-
-const WEEKDAYS = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+import { useCalendarGrid } from "@/hooks/useCalendarGrid";
 
 interface CalendarViewProps {
   month: Date;
@@ -14,13 +12,6 @@ interface CalendarViewProps {
   onPrevMonth: () => void;
   onNextMonth: () => void;
   onBackToDashboard: () => void;
-}
-
-/** Leading `null`s pad the grid so day 1 lands on its weekday column. */
-function getCalendarDays(month: Date): Array<number | null> {
-  const firstWeekday = new Date(month.getFullYear(), month.getMonth(), 1).getDay();
-  const daysInMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
-  return [...Array(firstWeekday).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
 }
 
 function CalendarDay({ day, loans }: { day: number; loans: Loan[] }) {
@@ -40,7 +31,7 @@ function CalendarDay({ day, loans }: { day: number; loans: Loan[] }) {
 }
 
 export function CalendarView({ month, calendarLoans, onPrevMonth, onNextMonth, onBackToDashboard }: CalendarViewProps) {
-  const monthName = month.toLocaleDateString("id-ID", { month: "long", year: "numeric" });
+  const { monthName, weekdays, days } = useCalendarGrid(month, calendarLoans);
 
   return (
     <>
@@ -65,17 +56,15 @@ export function CalendarView({ month, calendarLoans, onPrevMonth, onNextMonth, o
         </div>
 
         <div className="calendar-grid">
-          {WEEKDAYS.map((weekday) => (
+          {weekdays.map((weekday) => (
             <div key={weekday} className="calendar-weekday">
               {weekday}
             </div>
           ))}
 
-          {getCalendarDays(month).map((day, index) => {
-            if (day === null) return <div key={`empty-${index}`} className="calendar-day empty" />;
-            const dateKey = toDateKey(month.getFullYear(), month.getMonth(), day);
-            const loans = calendarLoans.filter((l) => dateKey >= l.start_date && dateKey <= l.due_date);
-            return <CalendarDay key={day} day={day} loans={loans} />;
+          {days.map((item) => {
+            if (item.day === null) return <div key={item.key} className="calendar-day empty" />;
+            return <CalendarDay key={item.key} day={item.day} loans={item.loans} />;
           })}
         </div>
       </div>
