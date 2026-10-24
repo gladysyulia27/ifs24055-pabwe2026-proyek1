@@ -8,6 +8,7 @@
  */
 import { Loan, LoanAction, LoanPayload, TransformedLoan, ValidationResult } from "@/types";
 import { loansApi } from "./api";
+import { handleServiceError } from "./errorHandler";
 import { statusClass } from "@/utils/loans";
 import { validateLoanForm } from "@/utils/validation";
 
@@ -80,53 +81,73 @@ export const loanService = {
    * Fetches loans with optional status and department filters, transformed for display.
    */
   async getAll(status?: string, departmentId?: number): Promise<TransformedLoan[]> {
-    const rawLoans = await loansApi.getAll(status, departmentId);
-    return transformLoanList(rawLoans);
+    try {
+      const rawLoans = await loansApi.getAll(status, departmentId);
+      return transformLoanList(rawLoans);
+    } catch (err: unknown) {
+      return handleServiceError(err, "Gagal memuat daftar peminjaman barang.");
+    }
   },
 
   /**
    * Fetches calendar loans for the given month.
    */
   async getCalendar(month?: string): Promise<TransformedLoan[]> {
-    const rawCalendar = await loansApi.getCalendar(month);
-    return transformLoanList(rawCalendar);
+    try {
+      const rawCalendar = await loansApi.getCalendar(month);
+      return transformLoanList(rawCalendar);
+    } catch (err: unknown) {
+      return handleServiceError(err, "Gagal memuat agenda kalender peminjaman.");
+    }
   },
 
   /**
    * Submits a loan application after client-side validation.
    */
   async create(payload: LoanPayload): Promise<TransformedLoan> {
-    const validation = validateLoanPayload(payload);
-    if (!validation.isValid) {
-      throw new Error(validation.error || "Validasi data peminjaman gagal.");
-    }
+    try {
+      const validation = validateLoanPayload(payload);
+      if (!validation.isValid) {
+        throw new Error(validation.error || "Validasi data peminjaman gagal.");
+      }
 
-    const created = await loansApi.create(payload);
-    return transformLoan(created);
+      const created = await loansApi.create(payload);
+      return transformLoan(created);
+    } catch (err: unknown) {
+      return handleServiceError(err, "Gagal mengajukan formulir peminjaman barang.");
+    }
   },
 
   /**
    * Approves, rejects, or confirms loan return.
    */
   async executeAction(id: number, action: LoanAction, approvedBy?: string): Promise<TransformedLoan> {
-    if (!id || id <= 0) {
-      throw new Error("ID transaksi peminjaman tidak valid.");
-    }
+    try {
+      if (!id || id <= 0) {
+        throw new Error("ID transaksi peminjaman tidak valid.");
+      }
 
-    const updated = await loansApi.action(id, action, approvedBy);
-    return transformLoan(updated);
+      const updated = await loansApi.action(id, action, approvedBy);
+      return transformLoan(updated);
+    } catch (err: unknown) {
+      return handleServiceError(err, `Gagal memproses tindakan '${action}' pada peminjaman.`);
+    }
   },
 
   /**
    * Submits return photo proof and optional condition note.
    */
   async submitReturn(id: number, returnProofUrl: string, returnNote = ""): Promise<TransformedLoan> {
-    const validation = validateReturnProofPayload(returnProofUrl);
-    if (!validation.isValid) {
-      throw new Error(validation.error || "Validasi bukti pengembalian gagal.");
-    }
+    try {
+      const validation = validateReturnProofPayload(returnProofUrl);
+      if (!validation.isValid) {
+        throw new Error(validation.error || "Validasi bukti pengembalian gagal.");
+      }
 
-    const updated = await loansApi.submitReturn(id, returnProofUrl, returnNote);
-    return transformLoan(updated);
+      const updated = await loansApi.submitReturn(id, returnProofUrl, returnNote);
+      return transformLoan(updated);
+    } catch (err: unknown) {
+      return handleServiceError(err, "Gagal mengirim bukti pengembalian barang.");
+    }
   }
 };

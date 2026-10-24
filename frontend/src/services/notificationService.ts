@@ -6,6 +6,7 @@
  */
 import { NotificationsData } from "@/types";
 import { notificationsApi } from "./api";
+import { handleServiceError } from "./errorHandler";
 
 /**
  * Normalizes notification notice objects.
@@ -19,7 +20,11 @@ export function normalizeNotifications(data: NotificationsData): NotificationsDa
 
 export const notificationService = {
   async getNotifications(): Promise<NotificationsData> {
-    const raw = await notificationsApi.getNotifications();
-    return normalizeNotifications(raw);
+    try {
+      const raw = await notificationsApi.getNotifications();
+      return normalizeNotifications(raw);
+    } catch (err: unknown) {
+      return handleServiceError(err, "Gagal mengambil daftar notifikasi sistem.");
+    }
   }
 };

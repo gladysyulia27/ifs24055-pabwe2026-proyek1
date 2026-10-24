@@ -7,6 +7,7 @@ import { Item, User } from "@/types";
 import { getItemImage } from "@/utils/itemImage";
 import { getDepartmentColor, getDepartmentIcon } from "@/utils/departmentStyles";
 import { isDepartmentAdmin } from "@/utils/roles";
+import { useItemStock } from "@/hooks/useItemStock";
 import styles from "./ItemCard.module.css";
 
 interface ItemCardProps {
@@ -18,8 +19,10 @@ interface ItemCardProps {
 }
 
 function ItemCardActions({ item, currentUser, onBorrow, onEdit, onDelete }: ItemCardProps) {
+  const { inStock, isOwnDepartment } = useItemStock(item, currentUser);
+
   if (isDepartmentAdmin(currentUser)) {
-    if (currentUser?.department_id !== item.department_id) {
+    if (!isOwnDepartment) {
       return <div className="item-card-foreign-note">Dikelola oleh Departemen {item.department_name}</div>;
     }
     return (
@@ -34,7 +37,6 @@ function ItemCardActions({ item, currentUser, onBorrow, onEdit, onDelete }: Item
     );
   }
 
-  const inStock = item.available_stock > 0;
   return (
     <button type="button" className="btn btn-accent btn-full" disabled={!inStock} onClick={() => onBorrow(item)}>
       {inStock ? "Ajukan Peminjaman" : "Stok Habis"} <ArrowRight size={15} />
@@ -44,12 +46,9 @@ function ItemCardActions({ item, currentUser, onBorrow, onEdit, onDelete }: Item
 
 export function ItemCard(props: ItemCardProps) {
   const { item, currentUser } = props;
+  const { inStock, bucket, isDanger, isWarning, isOwnDepartment } = useItemStock(item, currentUser);
   const DepartmentIcon = getDepartmentIcon(item.department_name);
-  const isOwnDepartment = isDepartmentAdmin(currentUser) && currentUser?.department_id === item.department_id;
   const imageUrl = getItemImage(item);
-  const inStock = item.available_stock > 0;
-  const stockPercent = item.total_stock ? Math.round((item.available_stock / item.total_stock) * 100) : 0;
-  const bucket = Math.min(100, Math.max(0, Math.round(stockPercent / 10) * 10));
   const widthClass = (styles as Record<string, string>)[`w${bucket}`] || styles.w0;
 
   return (
@@ -87,7 +86,7 @@ export function ItemCard(props: ItemCardProps) {
       <p className={styles.desc}>{item.description || item.category}</p>
 
       <div className={`stock-track item-card-track ${styles.track}`}>
-        <div className={`${styles.fill} ${widthClass} ${stockPercent < 20 ? styles.fillDanger : stockPercent < 50 ? styles.fillWarning : ""}`} />
+        <div className={`${styles.fill} ${widthClass} ${isDanger ? styles.fillDanger : isWarning ? styles.fillWarning : ""}`} />
       </div>
 
       <ItemCardActions {...props} />

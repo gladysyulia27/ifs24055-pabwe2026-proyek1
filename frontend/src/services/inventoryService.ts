@@ -7,6 +7,7 @@
  */
 import { Item, ItemPayload, TransformedItem, ValidationResult } from "@/types";
 import { inventoryApi } from "./api";
+import { handleServiceError } from "./errorHandler";
 import { getItemImage } from "@/utils/itemImage";
 import { validateItemForm } from "@/utils/validation";
 
@@ -77,43 +78,59 @@ export const inventoryService = {
    * returning transformed domain entities.
    */
   async getAll(departmentId?: number, search?: string): Promise<TransformedItem[]> {
-    const rawItems = await inventoryApi.getAll(departmentId, search);
-    return transformItemList(rawItems);
+    try {
+      const rawItems = await inventoryApi.getAll(departmentId, search);
+      return transformItemList(rawItems);
+    } catch (err: unknown) {
+      return handleServiceError(err, "Gagal memuat data inventori barang.");
+    }
   },
 
   /**
    * Creates a new inventory item after validating the payload.
    */
   async create(payload: ItemPayload): Promise<TransformedItem> {
-    const validation = validateItemPayload(payload);
-    if (!validation.isValid) {
-      throw new Error(validation.error || "Validasi data barang gagal.");
-    }
+    try {
+      const validation = validateItemPayload(payload);
+      if (!validation.isValid) {
+        throw new Error(validation.error || "Validasi data barang gagal.");
+      }
 
-    const created = await inventoryApi.create(payload);
-    return transformItem(created);
+      const created = await inventoryApi.create(payload);
+      return transformItem(created);
+    } catch (err: unknown) {
+      return handleServiceError(err, "Gagal menambahkan barang inventori baru.");
+    }
   },
 
   /**
    * Updates an existing inventory item after validating the delta.
    */
   async update(id: number, payload: Partial<Omit<ItemPayload, "department_id">>): Promise<TransformedItem> {
-    const validation = validateItemPayload(payload);
-    if (!validation.isValid) {
-      throw new Error(validation.error || "Validasi data barang gagal.");
-    }
+    try {
+      const validation = validateItemPayload(payload);
+      if (!validation.isValid) {
+        throw new Error(validation.error || "Validasi data barang gagal.");
+      }
 
-    const updated = await inventoryApi.update(id, payload);
-    return transformItem(updated);
+      const updated = await inventoryApi.update(id, payload);
+      return transformItem(updated);
+    } catch (err: unknown) {
+      return handleServiceError(err, "Gagal memperbarui data barang inventori.");
+    }
   },
 
   /**
    * Deletes an inventory item by ID.
    */
   async delete(id: number): Promise<{ success: boolean; message: string }> {
-    if (!id || id <= 0) {
-      throw new Error("ID barang tidak valid.");
+    try {
+      if (!id || id <= 0) {
+        throw new Error("ID barang tidak valid.");
+      }
+      return await inventoryApi.delete(id);
+    } catch (err: unknown) {
+      return handleServiceError(err, "Gagal menghapus data barang inventori.");
     }
-    return inventoryApi.delete(id);
   }
 };

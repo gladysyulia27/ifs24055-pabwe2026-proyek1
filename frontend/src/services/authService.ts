@@ -7,6 +7,7 @@
  */
 import { LoginCredentials, RegisterPayload, User, ValidationResult } from "@/types";
 import { authApi } from "./api";
+import { handleServiceError } from "./errorHandler";
 import { validateLoginForm, validateRegisterForm } from "@/utils/validation";
 
 /**
@@ -46,16 +47,20 @@ export const authService = {
    * Performs user login with client-side credential validation.
    */
   async login(credentials: LoginCredentials): Promise<{ message: string; token: string; user: User }> {
-    const validation = validateLoginPayload(credentials);
-    if (!validation.isValid) {
-      throw new Error(validation.error || "Validasi kredensial login gagal.");
-    }
+    try {
+      const validation = validateLoginPayload(credentials);
+      if (!validation.isValid) {
+        throw new Error(validation.error || "Validasi kredensial login gagal.");
+      }
 
-    const res = await authApi.login(credentials);
-    return {
-      ...res,
-      user: transformUser(res.user)
-    };
+      const res = await authApi.login(credentials);
+      return {
+        ...res,
+        user: transformUser(res.user)
+      };
+    } catch (err: unknown) {
+      return handleServiceError(err, "Gagal melakukan proses masuk (login).");
+    }
   },
 
   /**
@@ -64,38 +69,54 @@ export const authService = {
   async register(
     payload: RegisterPayload & { role?: string; department_id?: number | null }
   ): Promise<{ message: string; token: string; user: User }> {
-    const validation = validateRegisterPayload(payload);
-    if (!validation.isValid) {
-      throw new Error(validation.error || "Validasi pendaftaran akun gagal.");
-    }
+    try {
+      const validation = validateRegisterPayload(payload);
+      if (!validation.isValid) {
+        throw new Error(validation.error || "Validasi pendaftaran akun gagal.");
+      }
 
-    const res = await authApi.register(payload);
-    return {
-      ...res,
-      user: transformUser(res.user)
-    };
+      const res = await authApi.register(payload);
+      return {
+        ...res,
+        user: transformUser(res.user)
+      };
+    } catch (err: unknown) {
+      return handleServiceError(err, "Gagal melakukan pendaftaran akun baru.");
+    }
   },
 
   /**
    * Fetches current authenticated user profile.
    */
   async getMe(): Promise<User> {
-    const res = await authApi.getMe();
-    return transformUser(res.user);
+    try {
+      const res = await authApi.getMe();
+      return transformUser(res.user);
+    } catch (err: unknown) {
+      return handleServiceError(err, "Gagal mengambil data profil pengguna aktif.");
+    }
   },
 
   /**
    * Logs out the current session.
    */
   async logout(): Promise<void> {
-    await authApi.logout();
+    try {
+      await authApi.logout();
+    } catch (err: unknown) {
+      return handleServiceError(err, "Gagal keluar dari sesi login.");
+    }
   },
 
   /**
    * Fetches available demo accounts for testing and quick sign-in.
    */
   async getDemoAccounts(): Promise<User[]> {
-    const accounts = await authApi.getDemoAccounts();
-    return accounts.map(transformUser);
+    try {
+      const accounts = await authApi.getDemoAccounts();
+      return accounts.map(transformUser);
+    } catch (err: unknown) {
+      return handleServiceError(err, "Gagal mengambil daftar akun demo.");
+    }
   }
 };
