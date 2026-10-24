@@ -9,7 +9,7 @@ interface ModalProps {
 }
 
 export function Modal({ title, children, onClose, maxWidth }: ModalProps) {
-  const widthStyle = maxWidth ? { maxWidth } : undefined;
+  const isLarge = maxWidth === "680px" || maxWidth === 680;
   return (
     <div
       className="modal-backdrop"
@@ -17,7 +17,7 @@ export function Modal({ title, children, onClose, maxWidth }: ModalProps) {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <section className="modal" style={widthStyle}>
+      <section className={`modal ${isLarge ? "modal-lg" : ""}`}>
         <div className="modal-head">
           <h2>{title}</h2>
           <button type="button" className="icon-btn" onClick={onClose} aria-label="Tutup modal">
