@@ -12,7 +12,8 @@ import {
   User
 } from "@/types";
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+export const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "https://ifs24055-pabwe2026-proyek1-backend.vercel.app/api";
 
 const TOKEN_KEY = "bem_inventory_token";
 
