@@ -15,57 +15,59 @@ import {
 export const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://ifs24055-pabwe2026-proyek1-backend.vercel.app/api";
 
-const TOKEN_KEY = "bem_inventory_token";
+const TOKEN_KEYS = ["bem_inventory_token", "token", "authToken"];
+const USER_KEY = "bem_user";
 
 let inMemoryToken: string | null = null;
 
-/**
- * Retrieves authentication token.
- * Reads from Secure Cookie, falling back to in-memory state.
- * Never stores authentication tokens in localStorage to protect against persistent XSS exfiltration.
- */
 export function getStoredToken(): string | null {
   if (typeof window === "undefined") return inMemoryToken;
-  // 1. Check document cookie
+  // 1. Check document cookies across standard key aliases
   try {
-    const match = document.cookie.match(new RegExp(`(^|;\\s*)${TOKEN_KEY}=([^;]+)`));
-    if (match) {
-      const token = decodeURIComponent(match[2]);
-      inMemoryToken = token;
-      return token;
+    for (const key of TOKEN_KEYS) {
+      const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${key}=([^;]+)`));
+      if (match) {
+        const token = decodeURIComponent(match[1]);
+        inMemoryToken = token;
+        return token;
+      }
     }
   } catch {
     // Cookie read blocked
   }
-  // 2. Check localStorage (essential for headless automation like Puppeteer/Lighthouse)
+
+  // 2. Check localStorage across standard aliases
   try {
-    const local = localStorage.getItem(TOKEN_KEY);
-    if (local) {
-      inMemoryToken = local;
-      return local;
+    for (const key of TOKEN_KEYS) {
+      const local = localStorage.getItem(key);
+      if (local) {
+        inMemoryToken = local;
+        return local;
+      }
     }
   } catch {
     // LocalStorage blocked
   }
-  // 3. In-memory fallback
+
   return inMemoryToken;
 }
 
 export function setStoredToken(token: string): void {
   inMemoryToken = token;
   if (typeof window !== "undefined") {
-    // Set cookie
-    try {
-      const isSecure = window.location.protocol === "https:" ? "; Secure" : "";
-      document.cookie = `${TOKEN_KEY}=${encodeURIComponent(token)}; path=/; max-age=604800; SameSite=Lax${isSecure}`;
-    } catch {
-      // Cookie set failed
-    }
-    // Set localStorage for headless audit persistence
-    try {
-      localStorage.setItem(TOKEN_KEY, token);
-    } catch {
-      // LocalStorage blocked
+    const isSecure = window.location.protocol === "https:" ? "; Secure" : "";
+    // Set across standard cookie keys
+    for (const key of TOKEN_KEYS) {
+      try {
+        document.cookie = `${key}=${encodeURIComponent(token)}; path=/; max-age=604800; SameSite=Lax${isSecure}`;
+      } catch {
+        // ignore
+      }
+      try {
+        localStorage.setItem(key, token);
+      } catch {
+        // ignore
+      }
     }
   }
 }
@@ -73,13 +75,20 @@ export function setStoredToken(token: string): void {
 export function removeStoredToken(): void {
   inMemoryToken = null;
   if (typeof window !== "undefined") {
-    try {
-      document.cookie = `${TOKEN_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
-    } catch {
-      // ignore
+    for (const key of TOKEN_KEYS) {
+      try {
+        document.cookie = `${key}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+      } catch {
+        // ignore
+      }
+      try {
+        localStorage.removeItem(key);
+      } catch {
+        // ignore
+      }
     }
     try {
-      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
     } catch {
       // ignore
     }

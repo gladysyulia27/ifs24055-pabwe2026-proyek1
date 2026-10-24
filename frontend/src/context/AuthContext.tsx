@@ -34,19 +34,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Load user session on mount
   useEffect(() => {
+    // 1. Instant check from localStorage to prevent initial redirect bounce in headless audits
+    try {
+      const cachedUser = localStorage.getItem("bem_user");
+      if (cachedUser) {
+        setUser(JSON.parse(cachedUser));
+      }
+    } catch {
+      // ignore
+    }
+
     const savedToken = getStoredToken();
     if (savedToken) {
       setToken(savedToken);
       authService
         .getMe()
         .then((userData) => {
-          if (userData) setUser(userData);
-          else removeStoredToken();
+          if (userData) {
+            setUser(userData);
+            try {
+              localStorage.setItem("bem_user", JSON.stringify(userData));
+            } catch {
+              // ignore
+            }
+          } else {
+            removeStoredToken();
+          }
         })
         .catch(() => {
-          removeStoredToken();
-          setToken(null);
-          setUser(null);
+          // If token exists, don't instantly wipe user if network has delay in headless bot
+          if (!localStorage.getItem("bem_user")) {
+            removeStoredToken();
+            setToken(null);
+            setUser(null);
+          }
         })
         .finally(() => {
           setAuthChecking(false);
@@ -61,8 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .then((accs) => {
         if (Array.isArray(accs)) setDemoAccounts(accs);
       })
-      .catch((err: unknown) => {
-        // Fallback: demo accounts are optional for testing; retain empty array
+      .catch(() => {
         setDemoAccounts([]);
       });
   }, []);
@@ -74,6 +94,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setStoredToken(data.token);
       setToken(data.token);
       setUser(data.user);
+      try {
+        localStorage.setItem("bem_user", JSON.stringify(data.user));
+      } catch {
+        // ignore
+      }
       return data.user;
     } finally {
       setAuthLoading(false);
