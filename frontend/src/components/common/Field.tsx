@@ -12,8 +12,8 @@ export function Field({ label, children, error, help }: FieldProps) {
     <label className="field">
       <span>{label}</span>
       {children}
-      {error && <span style={{ color: "#C53D34", fontSize: 11.5, fontWeight: 600, marginTop: 4 }}>{error}</span>}
-      {help && !error && <p className="field-help" style={{ margin: "4px 0 0" }}>{help}</p>}
+      {error && <span className="field-error">{error}</span>}
+      {help && !error && <p className="field-help field-help-spaced">{help}</p>}
     </label>
   );
 }

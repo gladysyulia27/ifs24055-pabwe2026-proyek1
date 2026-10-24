@@ -2602,3 +2602,193 @@ tbody td .table-sub {
 
 
 
+
+/* ---------- Shared utility classes (replace repeated inline styles) ---------- */
+.form-error {
+  color: #C53D34;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.field-error {
+  color: #C53D34;
+  font-size: 11.5px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.field-help-spaced {
+  margin: 4px 0 0;
+}
+
+.auth-error-banner {
+  background: #FFF1F0;
+  border: 1px solid #FFA39E;
+  color: #C53D34;
+  padding: 10px 14px;
+  border-radius: var(--radius-inner);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.loan-note {
+  font-size: 11.5px;
+  color: var(--ink-secondary);
+  font-style: italic;
+}
+
+.loan-note-done {
+  font-size: 11.5px;
+  color: var(--olive);
+  font-weight: 700;
+}
+
+.loan-note-muted {
+  font-size: 11.5px;
+  color: var(--ink-muted);
+}
+
+.table-item-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-user-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+}
+
+.sidebar-user-card .user-avatar {
+  width: 36px;
+  height: 36px;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.sidebar-user-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.sidebar-user-copy b,
+.sidebar-user-copy span {
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.item-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.item-card-stock {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-secondary);
+}
+
+.item-card-track {
+  margin-bottom: 14px;
+}
+
+.item-card-foreign-note {
+  text-align: center;
+  padding: 6px 0;
+  font-size: 11px;
+  color: var(--ink-muted);
+  font-style: italic;
+}
+
+.item-card-owned {
+  border-color: var(--olive);
+}
+
+.dept-card-owned {
+  border: 2px solid var(--olive);
+}
+
+.dept-card-owned-label {
+  font-size: 11px;
+  color: var(--olive);
+  font-weight: 800;
+}
+
+.dept-card-action {
+  margin-top: 16px;
+}
+
+.dept-badge-lg {
+  width: 46px;
+  height: 46px;
+}
+
+.session-check {
+  align-items: center;
+  justify-content: center;
+}
+
+.session-check-body {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.session-check-body img {
+  height: 68px;
+  object-fit: contain;
+}
+
+.session-check-body h2 {
+  font-family: var(--font-display);
+  margin: 0;
+  font-size: 20px;
+  color: var(--ink);
+}
+
+.session-check-body p {
+  color: var(--ink-secondary);
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+
+.icon-muted {
+  color: var(--ink-muted);
+}
+
+.auth-submit-btn {
+  padding: 12px 20px;
+  font-size: 14px;
+}
+
+.auth-tabs-spaced {
+  margin-bottom: 18px;
+}
+
+.input-readonly-strong {
+  background: var(--surface);
+  font-weight: 700;
+}
+
+.photo-url-toggle {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2px;
+}
+
+.photo-url-toggle .text-btn {
+  font-size: 11.5px;
+}
+
+.photo-file-input {
+  display: none;
+}

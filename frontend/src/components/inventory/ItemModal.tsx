@@ -4,11 +4,15 @@ import React, { useState } from "react";
 import { Item, ItemFormData, User } from "@/types";
 import { Modal } from "@/components/common/Modal";
 import { Field } from "@/components/common/Field";
+import { FormError } from "@/components/common/FormError";
+import { ModalActions } from "@/components/common/ModalActions";
 import { PhotoUpload } from "@/components/inventory/PhotoUpload";
+import { useFormSubmission } from "@/hooks/useFormSubmission";
 import { validateItemForm } from "@/utils/validation";
 
+const CONDITION_OPTIONS = ["Baik", "Perlu Perbaikan", "Rusak"];
+
 interface ItemModalProps {
-  isOpen: boolean;
   editingItem: Item | null;
   currentUser: User;
   onClose: () => void;
@@ -16,16 +20,9 @@ interface ItemModalProps {
   onErrorToast: (msg: string) => void;
 }
 
-export function ItemModal({
-  isOpen,
-  editingItem,
-  currentUser,
-  onClose,
-  onSubmit,
-  onErrorToast
-}: ItemModalProps) {
+export function ItemModal({ editingItem, currentUser, onClose, onSubmit, onErrorToast }: ItemModalProps) {
   const [form, setForm] = useState<ItemFormData>(() => ({
-    department_id: editingItem ? String(editingItem.department_id) : String(currentUser.department_id || ""),
+    department_id: String(editingItem?.department_id ?? currentUser.department_id ?? ""),
     name: editingItem?.name || "",
     category: editingItem?.category || "Umum",
     description: editingItem?.description || "",
@@ -33,28 +30,16 @@ export function ItemModal({
     condition_status: editingItem?.condition_status || "Baik",
     image_url: editingItem?.image_url || ""
   }));
+  const { loading, error, submit } = useFormSubmission({ onClose, onErrorToast });
 
-  const [loading, setLoading] = useState(false);
-  const [validationError, setValidationError] = useState<string | null>(null);
+  const updateField =
+    (field: keyof ItemFormData) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+      setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
-  if (!isOpen) return null;
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const error = validateItemForm(form);
-    if (error) {
-      setValidationError(error);
-      onErrorToast(error);
-      return;
-    }
-    setValidationError(null);
-    setLoading(true);
-    try {
-      await onSubmit(form);
-      onClose();
-    } finally {
-      setLoading(false);
-    }
+    void submit(validateItemForm(form), () => onSubmit(form));
   };
 
   return (
@@ -71,18 +56,14 @@ export function ItemModal({
 
         <div className="form-grid">
           <Field label="Departemen Pemilik">
-            <input
-              disabled
-              value={currentUser.department_name || ""}
-              style={{ background: "var(--surface)", fontWeight: 700 }}
-            />
+            <input disabled className="input-readonly-strong" value={currentUser.department_name || ""} />
           </Field>
 
-          <Field label="Nama Barang *" error={validationError && !form.name.trim() ? "Nama wajib diisi" : undefined}>
+          <Field label="Nama Barang *" error={error && !form.name.trim() ? "Nama wajib diisi" : undefined}>
             <input
               required
               value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              onChange={updateField("name")}
               placeholder="Contoh: Kamera DSLR Canon"
             />
           </Field>
@@ -90,29 +71,20 @@ export function ItemModal({
           <Field label="Kategori">
             <input
               value={form.category}
-              onChange={(e) => setForm({ ...form, category: e.target.value })}
+              onChange={updateField("category")}
               placeholder="Contoh: Dokumentasi, Audio, Olahraga"
             />
           </Field>
 
           <Field label="Stok Total *">
-            <input
-              type="number"
-              min="0"
-              required
-              value={form.total_stock}
-              onChange={(e) => setForm({ ...form, total_stock: e.target.value })}
-            />
+            <input type="number" min="0" required value={form.total_stock} onChange={updateField("total_stock")} />
           </Field>
 
           <Field label="Kondisi Barang">
-            <select
-              value={form.condition_status}
-              onChange={(e) => setForm({ ...form, condition_status: e.target.value })}
-            >
-              <option>Baik</option>
-              <option>Perlu Perbaikan</option>
-              <option>Rusak</option>
+            <select value={form.condition_status} onChange={updateField("condition_status")}>
+              {CONDITION_OPTIONS.map((option) => (
+                <option key={option}>{option}</option>
+              ))}
             </select>
           </Field>
         </div>
@@ -121,25 +93,20 @@ export function ItemModal({
           <textarea
             rows={3}
             value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            onChange={updateField("description")}
             placeholder="Keterangan kelengkapan, nomor seri, atau kondisi barang..."
           />
         </Field>
 
-        {validationError && (
-          <div style={{ color: "#C53D34", fontSize: 13, fontWeight: 600 }}>
-            {validationError}
-          </div>
-        )}
+        <FormError message={error} />
 
-        <div className="modal-actions">
-          <button type="button" className="btn btn-secondary" onClick={onClose} disabled={loading}>
-            Kembali
-          </button>
-          <button className="btn btn-primary" type="submit" disabled={loading}>
-            {loading ? "Menyimpan..." : "Simpan Inventori"}
-          </button>
-        </div>
+        <ModalActions
+          loading={loading}
+          loadingLabel="Menyimpan..."
+          submitLabel="Simpan Inventori"
+          submitClassName="btn-primary"
+          onCancel={onClose}
+        />
       </form>
     </Modal>
   );

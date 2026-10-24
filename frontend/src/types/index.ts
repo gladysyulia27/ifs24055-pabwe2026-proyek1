@@ -96,3 +96,43 @@ export interface LoanFormData {
   start_date: string;
   due_date: string;
 }
+
+export type PageKey = "Dashboard" | "Inventori" | "Peminjaman" | "Kalender" | "Notifikasi" | "Departemen";
+
+export type LoanAction = "approve" | "reject" | "confirm-return";
+
+export interface LoginCredentials {
+  username_or_email: string;
+  password: string;
+}
+
+export interface RegisterPayload {
+  username: string;
+  email: string;
+  password: string;
+  full_name: string;
+  identifier: string;
+  contact_phone?: string;
+}
+
+export interface ItemPayload {
+  department_id: number;
+  name: string;
+  category?: string;
+  description?: string;
+  total_stock: number;
+  condition_status?: string;
+  image_url?: string;
+}
+
+export interface LoanPayload {
+  inventory_id: number;
+  borrower_name: string;
+  borrower_id: string;
+  borrower_contact?: string;
+  organization?: string;
+  purpose: string;
+  quantity: number;
+  start_date: string;
+  due_date: string;
+}

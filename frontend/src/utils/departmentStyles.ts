@@ -8,7 +8,8 @@ import {
   Volleyball,
   ShieldAlert,
   Music2,
-  Package
+  Package,
+  LucideIcon
 } from "lucide-react";
 
 export const departmentColor: Record<string, string> = {
@@ -23,7 +24,7 @@ export const departmentColor: Record<string, string> = {
   DEPSENBUD: "rose"
 };
 
-export const departmentIcon: Record<string, any> = {
+export const departmentIcon: Record<string, LucideIcon> = {
   DEPKOMINFO: Camera,
   DIPTEK: Computer,
   DEPAGSOS: Flower2,
@@ -35,7 +36,9 @@ export const departmentIcon: Record<string, any> = {
   DEPSENBUD: Music2
 };
 
-export function getDepartmentIcon(deptName?: string) {
-  if (!deptName) return Package;
-  return departmentIcon[deptName] || Package;
+export function getDepartmentIcon(deptName?: string): LucideIcon {
+  return (deptName && departmentIcon[deptName]) || Package;
 }
+
+export const getDepartmentColor = (deptName?: string): string =>
+  (deptName && departmentColor[deptName]) || "blue";

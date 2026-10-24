@@ -2,23 +2,18 @@
 
 import React from "react";
 import { Bell, Menu } from "lucide-react";
-import { User, NotificationsData } from "@/types";
+import { PageKey, User } from "@/types";
+import { getUserInitials, isDepartmentAdmin } from "@/utils/roles";
 
 interface TopbarProps {
-  page: string;
+  page: PageKey;
   user: User | null;
-  notifications: NotificationsData;
+  hasNotifications: boolean;
   onToggleMobileNav: () => void;
   onOpenNotifications: () => void;
 }
 
-export function Topbar({
-  page,
-  user,
-  notifications,
-  onToggleMobileNav,
-  onOpenNotifications
-}: TopbarProps) {
+export function Topbar({ page, user, hasNotifications, onToggleMobileNav, onOpenNotifications }: TopbarProps) {
   return (
     <header className="topbar">
       <div className="topbar-left">
@@ -44,15 +39,15 @@ export function Topbar({
           aria-label="Buka notifikasi"
         >
           <Bell size={18} />
-          {notifications.pending.length > 0 && <i />}
+          {hasNotifications && <i />}
         </button>
 
         {user && (
           <>
-            <div className="user-avatar">{user.role === "admin_departemen" ? "PJ" : "M"}</div>
+            <div className="user-avatar">{getUserInitials(user)}</div>
             <div className="user-info">
               <b>{user.full_name}</b>
-              <span>{user.role === "admin_departemen" ? `Pengelola ${user.department_name}` : "Peminjam Mahasiswa"}</span>
+              <span>{isDepartmentAdmin(user) ? `Pengelola ${user.department_name}` : "Peminjam Mahasiswa"}</span>
             </div>
           </>
         )}

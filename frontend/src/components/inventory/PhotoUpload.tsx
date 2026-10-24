@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Camera, Trash2, UploadCloud } from "lucide-react";
 import { Field } from "@/components/common/Field";
+import { compressImageFile, MAX_PHOTO_BYTES } from "@/utils/imageCompression";
 
 interface PhotoUploadProps {
   value: string;
@@ -13,7 +14,7 @@ interface PhotoUploadProps {
 export function PhotoUpload({ value, onChange, onErrorToast }: PhotoUploadProps) {
   const [showUrlInput, setShowUrlInput] = useState(false);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -21,45 +22,21 @@ export function PhotoUpload({ value, onChange, onErrorToast }: PhotoUploadProps)
       onErrorToast?.("File yang dipilih harus berupa file gambar (JPG, PNG, WebP).");
       return;
     }
-
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > MAX_PHOTO_BYTES) {
       onErrorToast?.("Ukuran foto maksimal 5 MB.");
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const src = event.target?.result as string;
-      const img = new Image();
-      img.onload = () => {
-        const maxDim = 1200;
-        let w = img.width;
-        let h = img.height;
-        if (w > maxDim || h > maxDim) {
-          if (w > h) {
-            h = Math.round((h * maxDim) / w);
-            w = maxDim;
-          } else {
-            w = Math.round((w * maxDim) / h);
-            h = maxDim;
-          }
-        }
-        const canvas = document.createElement("canvas");
-        canvas.width = w;
-        canvas.height = h;
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          ctx.drawImage(img, 0, 0, w, h);
-          const compressed = canvas.toDataURL("image/webp", 0.86);
-          onChange(compressed);
-        } else {
-          onChange(src);
-        }
-      };
-      img.src = src;
-    };
-    reader.readAsDataURL(file);
+    try {
+      onChange(await compressImageFile(file));
+    } catch {
+      onErrorToast?.("Gagal membaca file gambar.");
+    }
   };
+
+  const fileInput = (
+    <input type="file" accept="image/*" className="photo-file-input" onChange={handleFileSelected} />
+  );
 
   return (
     <div className="photo-upload-section">
@@ -70,12 +47,7 @@ export function PhotoUpload({ value, onChange, onErrorToast }: PhotoUploadProps)
           <div className="photo-preview-overlay">
             <label className="btn btn-secondary btn-small photo-upload-btn" title="Ganti Foto">
               <Camera size={14} /> Ganti Foto
-              <input
-                type="file"
-                accept="image/*"
-                style={{ display: "none" }}
-                onChange={handleFileUpload}
-              />
+              {fileInput}
             </label>
             <button
               type="button"
@@ -89,12 +61,7 @@ export function PhotoUpload({ value, onChange, onErrorToast }: PhotoUploadProps)
         </div>
       ) : (
         <label className="photo-dropzone">
-          <input
-            type="file"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={handleFileUpload}
-          />
+          {fileInput}
           <div className="photo-dropzone-icon">
             <UploadCloud size={24} />
           </div>
@@ -105,13 +72,8 @@ export function PhotoUpload({ value, onChange, onErrorToast }: PhotoUploadProps)
         </label>
       )}
 
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 2 }}>
-        <button
-          type="button"
-          className="text-btn"
-          style={{ fontSize: 11.5 }}
-          onClick={() => setShowUrlInput(!showUrlInput)}
-        >
+      <div className="photo-url-toggle">
+        <button type="button" className="text-btn" onClick={() => setShowUrlInput((open) => !open)}>
           {showUrlInput ? "Sembunyikan input URL" : "Atau gunakan tautan / URL foto"}
         </button>
       </div>
