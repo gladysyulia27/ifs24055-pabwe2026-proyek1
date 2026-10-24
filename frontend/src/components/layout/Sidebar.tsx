@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { User } from "@/types";
@@ -48,7 +49,14 @@ export function Sidebar({
       <aside className={`sidebar ${mobileNav ? "sidebar-open" : ""}`}>
         <div className="brand">
           <Link href="/dashboard" className="brand-mark-box link-plain">
-            <img src="/logo-bem-del.png" alt="BEM IT Del" className="brand-logo-img" />
+            <Image
+              src="/logo-bem-del.png"
+              alt="BEM IT Del"
+              width={34}
+              height={34}
+              className="brand-logo-img"
+              priority
+            />
           </Link>
           <div className="brand-titles">
             <strong>BEM IT Del</strong>

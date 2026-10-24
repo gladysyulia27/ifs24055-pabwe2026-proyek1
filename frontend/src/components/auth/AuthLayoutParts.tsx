@@ -1,11 +1,18 @@
 import React from "react";
+import Image from "next/image";
 import { Sparkles } from "lucide-react";
 
 export function AuthHeader() {
   return (
     <header className="auth-gate-header">
       <div className="auth-gate-brand">
-        <img src="/logo-bem-del.png?v=2" alt="Logo BEM IT Del" />
+        <Image
+          src="/logo-bem-del.png"
+          alt="Logo BEM IT Del"
+          width={36}
+          height={36}
+          priority
+        />
         <div className="auth-gate-brand-copy">
           <h1>BEM Institut Teknologi Del</h1>
           <span>Sistem Manajemen & Peminjaman Inventori Organisasi</span>
@@ -38,7 +45,13 @@ export function AuthHero() {
       <div className="auth-sway-showcase">
         <div className="auth-sway-glow" />
         <div className="auth-sway-logo-wrap">
-          <img src="/logo-bem-del.png?v=2" alt="Logo Resmi BEM Institut Teknologi Del" />
+          <Image
+            src="/logo-bem-del.png"
+            alt="Logo Resmi BEM Institut Teknologi Del"
+            width={120}
+            height={120}
+            priority
+          />
           <div className="auth-sway-shadow" />
         </div>
       </div>

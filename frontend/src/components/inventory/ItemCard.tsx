@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { ArrowRight, Pencil, Trash2 } from "lucide-react";
 import { Item, User } from "@/types";
 import { getItemImage } from "@/utils/itemImage";
@@ -56,7 +57,14 @@ export function ItemCard(props: ItemCardProps) {
       <div className={`item-card-media ${styles.media}`}>
         <span className={`item-dept-chip ${styles.deptChip}`}>{item.department_name}</span>
         {imageUrl ? (
-          <img src={imageUrl} alt={item.name} className={`item-card-img ${styles.img}`} />
+          <Image
+            src={imageUrl}
+            alt={item.name}
+            width={320}
+            height={200}
+            className={`item-card-img ${styles.img}`}
+            unoptimized={imageUrl.startsWith("data:")}
+          />
         ) : (
           <div className={`item-card-placeholder ${styles.placeholder} ${getDepartmentColor(item.department_name)}`}>
             <DepartmentIcon size={30} />

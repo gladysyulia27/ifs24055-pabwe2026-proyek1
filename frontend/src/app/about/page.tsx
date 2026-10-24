@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, ArrowRight, ShieldCheck, CheckCircle2, Building, Mail, Phone, ExternalLink } from "lucide-react";
 
 export default function AboutPage() {
@@ -20,7 +21,14 @@ export default function AboutPage() {
       <header className="landing-header">
         <div className="landing-header-inner">
           <Link href="/" className="landing-brand">
-            <img src="/logo-bem-del.png" alt="Logo BEM IT Del" className="landing-brand-logo" />
+            <Image
+              src="/logo-bem-del.png"
+              alt="Logo BEM IT Del"
+              width={40}
+              height={40}
+              className="landing-brand-logo"
+              priority
+            />
             <div>
               <strong className="landing-brand-title">BEM IT Del</strong>
               <span className="landing-brand-sub">SISTEM INVENTORI RESMI</span>

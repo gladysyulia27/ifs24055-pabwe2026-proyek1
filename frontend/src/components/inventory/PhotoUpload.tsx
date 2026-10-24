@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { Camera, Trash2, UploadCloud } from "lucide-react";
 import { Field } from "@/components/common/Field";
 import { compressImageFile, MAX_PHOTO_BYTES } from "@/utils/imageCompression";
@@ -43,7 +44,14 @@ export function PhotoUpload({ value, onChange, onErrorToast }: PhotoUploadProps)
       <label className="field-label">Foto Barang</label>
       {value ? (
         <div className="photo-preview-box">
-          <img src={value} alt="Preview Foto Barang" className="photo-preview-img" />
+          <Image
+            src={value}
+            alt="Preview Foto Barang"
+            width={200}
+            height={140}
+            className="photo-preview-img"
+            unoptimized={value.startsWith("data:")}
+          />
           <div className="photo-preview-overlay">
             <label className="btn btn-secondary btn-small photo-upload-btn" title="Ganti Foto">
               <Camera size={14} /> Ganti Foto

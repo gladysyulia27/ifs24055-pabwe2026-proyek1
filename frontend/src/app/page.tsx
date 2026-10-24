@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Package, ShieldCheck, Calendar, CheckCircle2, LogIn, UserPlus, Sparkles, Layers } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -37,7 +38,14 @@ export default function LandingPage() {
       <header className="landing-header">
         <div className="landing-header-inner">
           <Link href="/" className="landing-brand">
-            <img src="/logo-bem-del.png" alt="Logo BEM IT Del" className="landing-brand-logo" />
+            <Image
+              src="/logo-bem-del.png"
+              alt="Logo BEM IT Del"
+              width={40}
+              height={40}
+              className="landing-brand-logo"
+              priority
+            />
             <div>
               <strong className="landing-brand-title">BEM IT Del</strong>
               <span className="landing-brand-sub">SISTEM INVENTORI RESMI</span>

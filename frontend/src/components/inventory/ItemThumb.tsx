@@ -4,6 +4,7 @@
  * The `large` variant is used inside loan/return modals.
  */
 import React from "react";
+import Image from "next/image";
 import { Package } from "lucide-react";
 import { Item } from "@/types";
 import { getItemImage } from "@/utils/itemImage";
@@ -18,11 +19,15 @@ interface ItemThumbProps {
 export function ItemThumb({ source, alt, large = false }: ItemThumbProps) {
   const src = getItemImage(source);
   if (src) {
+    const size = large ? 56 : 38;
     return (
-      <img
+      <Image
         src={src}
         alt={alt}
+        width={size}
+        height={size}
         className={`item-thumb-img${large ? " item-thumb-img--large" : ""}`}
+        unoptimized={src.startsWith("data:")}
       />
     );
   }
