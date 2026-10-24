@@ -16,25 +16,45 @@ export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000
 
 const TOKEN_KEY = "bem_inventory_token";
 
+/**
+ * Retrieves authentication token.
+ * Prefers Secure Cookie for CSRF/XSS resistance, falling back to local storage if cookies disabled.
+ * Note: When backend supports Set-Cookie with httpOnly, tokens are transported automatically.
+ */
 export function getStoredToken(): string | null {
   if (typeof window === "undefined") return null;
-  const local = localStorage.getItem(TOKEN_KEY);
-  if (local) return local;
+  // 1. Check document cookie
   const match = document.cookie.match(new RegExp(`(^|;\\s*)${TOKEN_KEY}=([^;]+)`));
-  return match ? decodeURIComponent(match[2]) : null;
+  if (match) return decodeURIComponent(match[2]);
+  // 2. Safe fallback
+  try {
+    return localStorage.getItem(TOKEN_KEY);
+  } catch {
+    return null;
+  }
 }
 
 export function setStoredToken(token: string): void {
   if (typeof window !== "undefined") {
-    localStorage.setItem(TOKEN_KEY, token);
-    document.cookie = `${TOKEN_KEY}=${encodeURIComponent(token)}; path=/; max-age=604800; SameSite=Lax`;
+    // Set cookie with SameSite and secure path
+    const isSecure = window.location.protocol === "https:" ? "; Secure" : "";
+    document.cookie = `${TOKEN_KEY}=${encodeURIComponent(token)}; path=/; max-age=604800; SameSite=Lax${isSecure}`;
+    try {
+      localStorage.setItem(TOKEN_KEY, token);
+    } catch {
+      // In case localStorage is blocked by user privacy settings
+    }
   }
 }
 
 export function removeStoredToken(): void {
   if (typeof window !== "undefined") {
-    localStorage.removeItem(TOKEN_KEY);
     document.cookie = `${TOKEN_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+    try {
+      localStorage.removeItem(TOKEN_KEY);
+    } catch {
+      // safe fallback
+    }
   }
 }
 

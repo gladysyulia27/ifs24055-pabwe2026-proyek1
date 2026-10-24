@@ -14,7 +14,7 @@ export interface ConfirmModalProps {
   confirmText?: string;
   cancelText?: string;
   variant?: ConfirmVariant;
-  isAlert?: boolean; // Jika true, hanya tombol konfirmasi (pengganti window.alert)
+  isAlert?: boolean; // Mode alert: modal dialog pemberitahuan satu tombol konfirmasi
   onConfirm: () => void | Promise<void>;
   onClose: () => void;
 }

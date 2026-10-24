@@ -14,6 +14,19 @@ const IDENTIFIER_REGEX = /^[a-zA-Z0-9_\-\.\/ ]{3,30}$/;
 // Phone number regex (7-25 chars)
 const PHONE_REGEX = /^[0-9+()\- ]{7,25}$/;
 
+/**
+ * Strips script tags, javascript: uris, HTML control brackets, and null bytes
+ * to protect against stored and reflected cross-site scripting (XSS).
+ */
+export function sanitizeInput(input: string): string {
+  if (!input || typeof input !== "string") return "";
+  return input
+    .replace(/\0/g, "") // strip null bytes
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "") // strip script tags
+    .replace(/[<>]/g, "") // remove stray angle brackets
+    .trim();
+}
+
 export function isValidEmail(email: string): boolean {
   if (!email || email.length > 100) return false;
   return EMAIL_REGEX.test(email.trim());

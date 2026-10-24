@@ -7,7 +7,8 @@ import {
   validateLoginForm,
   validateRegisterForm,
   validateItemForm,
-  validateLoanForm
+  validateLoanForm,
+  sanitizeInput
 } from "@/utils/validation";
 
 describe("Validation Utilities (Synchronized with Backend)", () => {
@@ -166,6 +167,18 @@ describe("Validation Utilities (Synchronized with Backend)", () => {
           due_date: "2026-10-25"
         })
       ).toBe("Tanggal pengembalian harus sama atau setelah tanggal pinjam.");
+    });
+  });
+
+  describe("sanitizeInput (XSS prevention)", () => {
+    it("strips script tags and angular braces", () => {
+      expect(sanitizeInput("<script>alert('xss')</script>Kamera")).toBe("Kamera");
+      expect(sanitizeInput("<b>Proyektor</b>")).toBe("bProyektor/b");
+    });
+
+    it("handles empty or non-string gracefully", () => {
+      expect(sanitizeInput("")).toBe("");
+      expect(sanitizeInput("   Halo BEM  ")).toBe("Halo BEM");
     });
   });
 });

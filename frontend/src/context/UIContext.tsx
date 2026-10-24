@@ -55,6 +55,7 @@ export interface UIContextType {
   openEditItemModal: (item: Item) => void;
   openReturnModal: (loan: Loan) => void;
   openConfirm: (options: ConfirmDialogOptions) => void;
+  showAlert: (options: AlertDialogOptions) => void;
   openAlert: (options: AlertDialogOptions) => void;
   handleDeleteItem: (item: Item) => void;
   handleLoanAction: (loan: Loan, action: LoanAction) => void;
@@ -81,12 +82,12 @@ export function UIProvider({ children }: { children: React.ReactNode }) {
     (ConfirmDialogOptions & { isAlert?: boolean }) | null
   >(null);
 
-  // --- Confirm / Alert ---
+  // --- Confirm / Alert Modal Dialogs ---
   const openConfirm = (options: ConfirmDialogOptions) => {
     setConfirmDialog({ ...options, isAlert: false });
   };
 
-  const openAlert = (options: AlertDialogOptions) => {
+  const showAlert = (options: AlertDialogOptions) => {
     setConfirmDialog({
       title: options.title,
       message: options.message,
@@ -97,6 +98,8 @@ export function UIProvider({ children }: { children: React.ReactNode }) {
       onConfirm: () => {}
     });
   };
+
+  const openAlert = showAlert;
 
   // --- Modal openers ---
   const openBorrowModal = (item: Item) => {
@@ -248,6 +251,7 @@ export function UIProvider({ children }: { children: React.ReactNode }) {
         openEditItemModal,
         openReturnModal,
         openConfirm,
+        showAlert,
         openAlert,
         handleDeleteItem,
         handleLoanAction

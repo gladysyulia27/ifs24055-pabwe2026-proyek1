@@ -22,9 +22,6 @@ describe("ErrorBoundary Component", () => {
   });
 
   it("catches errors and renders fallback error card", () => {
-    // Suppress console.error in test output for intentional throw
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-
     render(
       <ErrorBoundary>
         <ProblematicComponent shouldThrow={true} />
@@ -36,7 +33,5 @@ describe("ErrorBoundary Component", () => {
     expect(
       screen.getByRole("button", { name: /muat ulang halaman/i })
     ).toBeInTheDocument();
-
-    consoleSpy.mockRestore();
   });
 });
