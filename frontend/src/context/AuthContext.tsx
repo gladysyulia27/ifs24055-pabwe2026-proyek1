@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { User } from "@/types";
-import { authApi, getStoredToken, setStoredToken, removeStoredToken } from "@/services/api";
+import { authService, getStoredToken, setStoredToken, removeStoredToken } from "@/services";
 
 interface AuthContextType {
   user: User | null;
@@ -37,10 +37,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const savedToken = getStoredToken();
     if (savedToken) {
       setToken(savedToken);
-      authApi
+      authService
         .getMe()
-        .then((res) => {
-          if (res?.user) setUser(res.user);
+        .then((userData) => {
+          if (userData) setUser(userData);
           else removeStoredToken();
         })
         .catch(() => {
@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     // Load demo accounts
-    authApi
+    authService
       .getDemoAccounts()
       .then((accs) => {
         if (Array.isArray(accs)) setDemoAccounts(accs);
@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(async (usernameOrEmail: string, password: string): Promise<User> => {
     setAuthLoading(true);
     try {
-      const data = await authApi.login({ username_or_email: usernameOrEmail, password });
+      const data = await authService.login({ username_or_email: usernameOrEmail, password });
       setStoredToken(data.token);
       setToken(data.token);
       setUser(data.user);
@@ -88,7 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }): Promise<User> => {
       setAuthLoading(true);
       try {
-        const data = await authApi.register({
+        const data = await authService.register({
           ...payload,
           role: "mahasiswa",
           department_id: null
@@ -106,7 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async (): Promise<void> => {
     try {
-      await authApi.logout();
+      await authService.logout();
     } catch {
       // Continue client logout even if backend failed
     } finally {

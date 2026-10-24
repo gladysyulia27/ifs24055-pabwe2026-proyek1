@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Department, Item, Loan, NotificationsData, User } from "@/types";
-import { departmentsApi, inventoryApi, loansApi, notificationsApi } from "@/services/api";
+import { departmentsApi, inventoryService, loanService, notificationService } from "@/services";
 import { getErrorMessage } from "@/utils/errors";
 
 const EMPTY_NOTIFICATIONS: NotificationsData = { due_returns: [], pending: [] };
 
-/** Loads every collection the dashboard needs from the backend API and exposes a refresh function. */
+/** Loads every collection the dashboard needs through the service layer with transformation and exposes a refresh function. */
 export function useInventoryData(user: User | null) {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [items, setItems] = useState<Item[]>([]);
@@ -24,10 +24,10 @@ export function useInventoryData(user: User | null) {
     try {
       const results = await Promise.allSettled([
         departmentsApi.getAll(),
-        inventoryApi.getAll(),
-        loansApi.getAll(),
-        loansApi.getCalendar(),
-        notificationsApi.getNotifications()
+        inventoryService.getAll(),
+        loanService.getAll(),
+        loanService.getCalendar(),
+        notificationService.getNotifications()
       ]);
 
       const [deptRes, invRes, loanRes, calRes, notifRes] = results;

@@ -72,11 +72,11 @@ function LoginContent() {
           <AuthHero />
 
           <div className="auth-card-panel">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <Link href="/" className="text-btn" style={{ fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <div className="auth-top-nav">
+              <Link href="/" className="text-btn auth-nav-link">
                 <ArrowLeft size={14} /> Beranda Publik
               </Link>
-              <Link href="/about" className="text-btn" style={{ fontSize: 13 }}>
+              <Link href="/about" className="text-btn auth-nav-link">
                 Tentang BEM
               </Link>
             </div>
@@ -90,9 +90,9 @@ function LoginContent() {
 
             <LoginForm values={loginValues} loading={authLoading} onChange={setLoginValues} onSubmit={handleLogin} />
 
-            <div style={{ textAlign: "center", marginTop: 18, fontSize: 13, color: "var(--ink-secondary)" }}>
+            <div className="auth-footer-prompt">
               Belum memiliki akun Mahasiswa?{" "}
-              <Link href="/register" style={{ color: "var(--ink)", fontWeight: 700, textDecoration: "underline" }}>
+              <Link href="/register" className="auth-footer-link">
                 Daftar Akun Baru
               </Link>
             </div>

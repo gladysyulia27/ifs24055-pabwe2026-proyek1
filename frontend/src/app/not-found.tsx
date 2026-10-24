@@ -1,1 +1,15 @@
-export default function NotFound(){return <main style={{padding:40,fontFamily:'sans-serif'}}><h1>Halaman tidak ditemukan</h1><a href="/">Kembali ke dashboard</a></main>}
+import Link from "next/link";
+
+export default function NotFound() {
+  return (
+    <main className="not-found-page">
+      <h1 className="error-boundary-title">404 - Halaman Tidak Ditemukan</h1>
+      <p className="error-boundary-desc">
+        Halaman atau rute yang Anda tuju tidak tersedia atau telah dipindahkan.
+      </p>
+      <Link href="/" className="btn btn-primary">
+        Kembali ke Beranda
+      </Link>
+    </main>
+  );
+}

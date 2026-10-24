@@ -1,4 +1,5 @@
 import {
+  ApiErrorData,
   Department,
   Item,
   ItemPayload,
@@ -117,11 +118,11 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 
   // Parse response body secara aman
-  let data: Record<string, unknown> | null = null;
+  let data: ApiErrorData | null = null;
   const contentType = response.headers.get("content-type") || "";
   if (contentType.includes("application/json")) {
     try {
-      data = (await response.json()) as Record<string, unknown>;
+      data = (await response.json()) as ApiErrorData;
     } catch {
       data = null;
     }

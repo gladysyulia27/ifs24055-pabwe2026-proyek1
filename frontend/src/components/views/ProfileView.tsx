@@ -35,57 +35,57 @@ export function ProfileView({ user, userLoans, onBack, onLogout }: ProfileViewPr
         {/* User Card */}
         <section className="panel">
           <PanelHead title="Identitas Akun" subtitle="Informasi kredensial login" />
-          <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
-            <div className="user-avatar" style={{ width: 56, height: 56, fontSize: 20 }}>
+          <div className="profile-avatar-row">
+            <div className="user-avatar profile-avatar-lg">
               {getUserInitials(user)}
             </div>
             <div>
-              <h2 style={{ fontSize: 18, margin: 0, color: "var(--ink)" }}>{user.full_name}</h2>
-              <span className={`status ${isAdmin ? "status-blue" : "status-green"}`} style={{ marginTop: 6, display: "inline-block" }}>
+              <h2 className="profile-title">{user.full_name}</h2>
+              <span className={`status ${isAdmin ? "status-blue" : "status-green"} profile-status-pill`}>
                 {isAdmin ? `Admin Departemen ${user.department_name}` : "Mahasiswa / Peminjam"}
               </span>
             </div>
           </div>
 
-          <div style={{ display: "grid", gap: 14 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div className="profile-info-list">
+            <div className="profile-info-row">
               <Hash size={16} className="icon-muted" />
               <div>
-                <b style={{ fontSize: 12, color: "var(--ink-secondary)", display: "block" }}>NIM / Nomor Identitas</b>
-                <span style={{ fontSize: 14, fontWeight: 600 }}>{user.identifier}</span>
+                <b className="profile-info-label">NIM / Nomor Identitas</b>
+                <span className="profile-info-value">{user.identifier}</span>
               </div>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div className="profile-info-row">
               <UserIcon size={16} className="icon-muted" />
               <div>
-                <b style={{ fontSize: 12, color: "var(--ink-secondary)", display: "block" }}>Username</b>
-                <span style={{ fontSize: 14, fontWeight: 600 }}>@{user.username}</span>
+                <b className="profile-info-label">Username</b>
+                <span className="profile-info-value">@{user.username}</span>
               </div>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div className="profile-info-row">
               <Mail size={16} className="icon-muted" />
               <div>
-                <b style={{ fontSize: 12, color: "var(--ink-secondary)", display: "block" }}>Alamat Email</b>
-                <span style={{ fontSize: 14, fontWeight: 600 }}>{user.email}</span>
+                <b className="profile-info-label">Alamat Email</b>
+                <span className="profile-info-value">{user.email}</span>
               </div>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div className="profile-info-row">
               <Phone size={16} className="icon-muted" />
               <div>
-                <b style={{ fontSize: 12, color: "var(--ink-secondary)", display: "block" }}>No. Kontak WhatsApp / HP</b>
-                <span style={{ fontSize: 14, fontWeight: 600 }}>{user.contact_phone || "Belum diatur"}</span>
+                <b className="profile-info-label">No. Kontak WhatsApp / HP</b>
+                <span className="profile-info-value">{user.contact_phone || "Belum diatur"}</span>
               </div>
             </div>
 
             {isAdmin && (
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div className="profile-info-row">
                 <Building2 size={16} className="icon-muted" />
                 <div>
-                  <b style={{ fontSize: 12, color: "var(--ink-secondary)", display: "block" }}>Departemen yang Dikelola</b>
-                  <span style={{ fontSize: 14, fontWeight: 600 }}>Departemen {user.department_name}</span>
+                  <b className="profile-info-label">Departemen yang Dikelola</b>
+                  <span className="profile-info-value">Departemen {user.department_name}</span>
                 </div>
               </div>
             )}
@@ -95,25 +95,25 @@ export function ProfileView({ user, userLoans, onBack, onLogout }: ProfileViewPr
         {/* Security & Activity Summary */}
         <section className="panel">
           <PanelHead title="Hak Akses & Aktivitas" subtitle="Izin operasional sistem" />
-          <div style={{ display: "grid", gap: 16 }}>
-            <div style={{ background: "var(--surface)", padding: 14, borderRadius: "var(--radius-inner)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                <Shield size={18} style={{ color: "var(--olive)" }} />
-                <b style={{ fontSize: 13, color: "var(--ink)" }}>Otorisasi Peran: {user.role}</b>
+          <div className="profile-info-list">
+            <div className="profile-notice-box">
+              <div className="profile-notice-header">
+                <Shield size={18} className="profile-notice-icon-olive" />
+                <b className="profile-notice-title">Otorisasi Peran: {user.role}</b>
               </div>
-              <p style={{ margin: 0, fontSize: 12.5, color: "var(--ink-secondary)", lineHeight: 1.5 }}>
+              <p className="profile-notice-desc">
                 {isAdmin
                   ? `Anda memiliki izin penuh untuk mengelola inventori, menambah barang baru, serta memverifikasi dan menyetujui peminjaman untuk Departemen ${user.department_name}.`
                   : "Anda memiliki hak akses untuk menjelajahi seluruh katalog barang, mengajukan permohonan peminjaman, serta mengunggah bukti pengembalian barang."}
               </p>
             </div>
 
-            <div style={{ background: "var(--surface)", padding: 14, borderRadius: "var(--radius-inner)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                <Calendar size={18} style={{ color: "var(--pink-ink)" }} />
-                <b style={{ fontSize: 13, color: "var(--ink)" }}>Riwayat Transaksi Terkait</b>
+            <div className="profile-notice-box">
+              <div className="profile-notice-header">
+                <Calendar size={18} className="profile-notice-icon-pink" />
+                <b className="profile-notice-title">Riwayat Transaksi Terkait</b>
               </div>
-              <p style={{ margin: 0, fontSize: 13, color: "var(--ink-secondary)" }}>
+              <p className="profile-notice-desc">
                 Total <b>{userLoans.length}</b> transaksi peminjaman tercatat pada akun ini.
               </p>
             </div>

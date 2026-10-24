@@ -108,28 +108,27 @@ export function ConfirmModal({
         }
       }}
     >
-      <div className="modal confirm-modal" style={{ maxWidth: 460, padding: "24px 28px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+      <div className="modal confirm-modal confirm-modal-box">
+        <div className="confirm-modal-header">
           <div className={`confirm-icon-badge confirm-badge-${variant}`}>
             {getVariantIcon()}
           </div>
           <button
             type="button"
-            className="icon-btn"
+            className="icon-btn confirm-modal-close-btn"
             onClick={onClose}
             disabled={submitting}
             aria-label="Tutup dialog"
-            style={{ marginTop: -4, marginRight: -4 }}
           >
             <X size={18} />
           </button>
         </div>
 
-        <h3 id="confirm-modal-title" style={{ fontSize: 19, fontWeight: 700, margin: "0 0 8px 0", color: "var(--ink)" }}>
+        <h3 id="confirm-modal-title" className="confirm-modal-title">
           {title}
         </h3>
 
-        <p style={{ fontSize: 14, lineHeight: 1.5, color: "var(--ink-secondary)", margin: "0 0 12px 0" }}>
+        <p className="confirm-modal-message">
           {message}
         </p>
 
@@ -140,12 +139,12 @@ export function ConfirmModal({
         )}
 
         {description && (
-          <p style={{ fontSize: 12.5, lineHeight: 1.5, color: "var(--ink-muted)", margin: "0 0 20px 0" }}>
+          <p className="confirm-modal-detail">
             {description}
           </p>
         )}
 
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 20 }}>
+        <div className="confirm-modal-actions">
           {!isAlert && (
             <button
               type="button"
@@ -160,10 +159,9 @@ export function ConfirmModal({
           <button
             ref={confirmBtnRef}
             type="button"
-            className={getConfirmBtnClass()}
+            className={`${getConfirmBtnClass()} confirm-modal-btn-inner`}
             onClick={handleConfirmClick}
             disabled={submitting}
-            style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
           >
             {submitting ? (
               <>

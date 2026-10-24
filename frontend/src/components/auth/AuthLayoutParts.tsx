@@ -22,7 +22,7 @@ export function AuthHero() {
   return (
     <div className="auth-hero-section">
       <div className="auth-hero-pill">
-        <Sparkles size={14} style={{ color: "var(--pink-ink)" }} />
+        <Sparkles size={14} className="landing-hero-pill-icon" />
         <span>GERBANG AUTORISASI RESMI</span>
       </div>
 

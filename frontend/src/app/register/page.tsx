@@ -59,11 +59,11 @@ export default function RegisterPage() {
           <AuthHero />
 
           <div className="auth-card-panel">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <Link href="/" className="text-btn" style={{ fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <div className="auth-top-nav">
+              <Link href="/" className="text-btn auth-nav-link">
                 <ArrowLeft size={14} /> Beranda Publik
               </Link>
-              <Link href="/about" className="text-btn" style={{ fontSize: 13 }}>
+              <Link href="/about" className="text-btn auth-nav-link">
                 Tentang BEM
               </Link>
             </div>
@@ -77,9 +77,9 @@ export default function RegisterPage() {
 
             <RegisterForm loading={authLoading} onSubmit={handleRegister} />
 
-            <div style={{ textAlign: "center", marginTop: 18, fontSize: 13, color: "var(--ink-secondary)" }}>
+            <div className="auth-footer-prompt">
               Sudah memiliki akun?{" "}
-              <Link href="/login" style={{ color: "var(--ink)", fontWeight: 700, textDecoration: "underline" }}>
+              <Link href="/login" className="auth-footer-link">
                 Masuk di sini
               </Link>
             </div>

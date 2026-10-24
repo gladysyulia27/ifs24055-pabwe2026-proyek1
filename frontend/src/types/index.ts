@@ -136,3 +136,90 @@ export interface LoanPayload {
   start_date: string;
   due_date: string;
 }
+
+// ============================================================================
+// STRICT API CONTRACTS & SERVICE LAYER DATA TRANSFORMATION TYPES
+// ============================================================================
+
+export interface ApiResponse<T = unknown> {
+  data?: T;
+  message?: string;
+  error?: string;
+  success?: boolean;
+}
+
+export interface ApiErrorData {
+  error?: string;
+  message?: string;
+  details?: Record<string, string[]>;
+  code?: string;
+}
+
+export interface TransformedItem extends Item {
+  stockPercent: number;
+  isAvailable: boolean;
+  statusBadgeClass: string;
+  displayImageUrl: string;
+}
+
+export interface TransformedLoan extends Loan {
+  isOverdue: boolean;
+  formattedStartDate: string;
+  formattedDueDate: string;
+  statusClass: string;
+}
+
+export interface ValidationResult {
+  isValid: boolean;
+  error: string | null;
+}
+
+/** Type guard to verify if an object conforms to User shape */
+export function isUser(data: unknown): data is User {
+  if (typeof data !== "object" || data === null) return false;
+  const u = data as Record<string, unknown>;
+  return (
+    typeof u.id === "number" &&
+    typeof u.username === "string" &&
+    typeof u.email === "string" &&
+    typeof u.full_name === "string" &&
+    typeof u.role === "string"
+  );
+}
+
+/** Type guard to verify if an object conforms to Item shape */
+export function isItem(data: unknown): data is Item {
+  if (typeof data !== "object" || data === null) return false;
+  const item = data as Record<string, unknown>;
+  return (
+    typeof item.id === "number" &&
+    typeof item.department_id === "number" &&
+    typeof item.name === "string" &&
+    typeof item.total_stock === "number"
+  );
+}
+
+/** Type guard to verify if an object conforms to Loan shape */
+export function isLoan(data: unknown): data is Loan {
+  if (typeof data !== "object" || data === null) return false;
+  const loan = data as Record<string, unknown>;
+  return (
+    typeof loan.id === "number" &&
+    typeof loan.inventory_id === "number" &&
+    typeof loan.borrower_name === "string" &&
+    typeof loan.start_date === "string" &&
+    typeof loan.due_date === "string" &&
+    typeof loan.status === "string"
+  );
+}
+
+/** Type guard to verify if an object conforms to Department shape */
+export function isDepartment(data: unknown): data is Department {
+  if (typeof data !== "object" || data === null) return false;
+  const dept = data as Record<string, unknown>;
+  return (
+    typeof dept.id === "number" &&
+    typeof dept.name === "string"
+  );
+}
+

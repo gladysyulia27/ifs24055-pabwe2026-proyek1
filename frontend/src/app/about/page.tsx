@@ -15,19 +15,19 @@ export default function AboutPage() {
   ];
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--bg-canvas)", color: "var(--ink)", display: "flex", flexDirection: "column" }}>
+    <div className="about-layout">
       {/* Public Header */}
-      <header style={{ borderBottom: "1px solid var(--border)", background: "var(--surface)", padding: "16px 24px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", color: "inherit" }}>
-            <img src="/logo-bem-del.png" alt="Logo BEM IT Del" style={{ height: 38, objectFit: "contain" }} />
+      <header className="landing-header">
+        <div className="landing-header-inner">
+          <Link href="/" className="landing-brand">
+            <img src="/logo-bem-del.png" alt="Logo BEM IT Del" className="landing-brand-logo" />
             <div>
-              <strong style={{ fontSize: 16, display: "block" }}>BEM IT Del</strong>
-              <span style={{ fontSize: 11, color: "var(--ink-secondary)", letterSpacing: "0.5px" }}>SISTEM INVENTORI RESMI</span>
+              <strong className="landing-brand-title">BEM IT Del</strong>
+              <span className="landing-brand-sub">SISTEM INVENTORI RESMI</span>
             </div>
           </Link>
 
-          <nav style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <nav className="landing-nav">
             <Link href="/" className="text-btn">
               Beranda
             </Link>
@@ -42,67 +42,59 @@ export default function AboutPage() {
       </header>
 
       {/* Main Content */}
-      <main style={{ maxWidth: 900, margin: "40px auto", padding: "0 24px", flex: 1 }}>
-        <div style={{ marginBottom: 24 }}>
-          <Link href="/" className="text-btn" style={{ fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 16 }}>
+      <main className="about-main">
+        <div className="about-intro">
+          <Link href="/" className="text-btn about-back-link">
             <ArrowLeft size={14} /> Kembali ke Beranda
           </Link>
           <div className="eyebrow">TENTANG SISTEM & ORGANISASI</div>
-          <h1 style={{ fontSize: 32, fontFamily: "var(--font-display)", margin: "8px 0 12px", color: "var(--ink)" }}>
+          <h1 className="about-title">
             Sistem Manajemen Peminjaman Inventori BEM IT Del
           </h1>
-          <p style={{ fontSize: 15, color: "var(--ink-secondary)", lineHeight: 1.7, margin: 0 }}>
+          <p className="about-desc">
             Platform terpadu untuk memfasilitasi mahasiswa, panitia acara, dan organisasi kemahasiswaan di lingkungan Institut Teknologi Del dalam meminjam fasilitas dan logistik kegiatan secara transparan, bertanggung jawab, dan terdata.
           </p>
         </div>
 
         {/* Section: Alur Peminjaman */}
-        <section className="panel" style={{ marginBottom: 24 }}>
-          <h2 style={{ fontSize: 18, marginBottom: 16, color: "var(--ink)" }}>Alur & Regulasi Peminjaman</h2>
-          <div style={{ display: "grid", gap: 16 }}>
-            <div style={{ display: "flex", gap: 14 }}>
-              <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--olive)", color: "#fff", display: "grid", placeItems: "center", fontWeight: 700, flexShrink: 0 }}>
-                1
-              </div>
+        <section className="panel about-panel">
+          <h2 className="about-panel-title">Alur & Regulasi Peminjaman</h2>
+          <div className="about-step-list">
+            <div className="about-step-item">
+              <div className="about-step-badge">1</div>
               <div>
-                <b style={{ fontSize: 14 }}>Pendaftaran Akun & Autentikasi</b>
-                <p style={{ margin: "4px 0 0", fontSize: 13, color: "var(--ink-secondary)", lineHeight: 1.5 }}>
+                <b className="about-step-title">Pendaftaran Akun & Autentikasi</b>
+                <p className="about-step-desc">
                   Mahasiswa aktif IT Del mendaftarkan akun menggunakan NIM resmi dan email kampus.
                 </p>
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: 14 }}>
-              <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--olive)", color: "#fff", display: "grid", placeItems: "center", fontWeight: 700, flexShrink: 0 }}>
-                2
-              </div>
+            <div className="about-step-item">
+              <div className="about-step-badge">2</div>
               <div>
-                <b style={{ fontSize: 14 }}>Pengajuan Online Melalui Katalog</b>
-                <p style={{ margin: "4px 0 0", fontSize: 13, color: "var(--ink-secondary)", lineHeight: 1.5 }}>
+                <b className="about-step-title">Pengajuan Online Melalui Katalog</b>
+                <p className="about-step-desc">
                   Pilih barang dari departemen terkait, tentukan jadwal mulai dan selesai, serta cantumkan tujuan kegiatan.
                 </p>
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: 14 }}>
-              <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--olive)", color: "#fff", display: "grid", placeItems: "center", fontWeight: 700, flexShrink: 0 }}>
-                3
-              </div>
+            <div className="about-step-item">
+              <div className="about-step-badge">3</div>
               <div>
-                <b style={{ fontSize: 14 }}>Verifikasi Pengelola Departemen</b>
-                <p style={{ margin: "4px 0 0", fontSize: 13, color: "var(--ink-secondary)", lineHeight: 1.5 }}>
+                <b className="about-step-title">Verifikasi Pengelola Departemen</b>
+                <p className="about-step-desc">
                   Penanggung jawab departemen meninjau kelayakan permohonan dan ketersediaan stok fisik barang.
                 </p>
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: 14 }}>
-              <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--olive)", color: "#fff", display: "grid", placeItems: "center", fontWeight: 700, flexShrink: 0 }}>
-                4
-              </div>
+            <div className="about-step-item">
+              <div className="about-step-badge">4</div>
               <div>
-                <b style={{ fontSize: 14 }}>Pengembalian & Bukti Foto</b>
-                <p style={{ margin: "4px 0 0", fontSize: 13, color: "var(--ink-secondary)", lineHeight: 1.5 }}>
+                <b className="about-step-title">Pengembalian & Bukti Foto</b>
+                <p className="about-step-desc">
                   Peminjam mengembalikan barang tepat waktu dan mengunggah bukti dokumentasi foto fisik barang.
                 </p>
               </div>
@@ -111,13 +103,13 @@ export default function AboutPage() {
         </section>
 
         {/* Section: Departemen */}
-        <section className="panel" style={{ marginBottom: 24 }}>
-          <h2 style={{ fontSize: 18, marginBottom: 14, color: "var(--ink)" }}>Departemen Pengelola Inventori</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 14 }}>
+        <section className="panel about-panel">
+          <h2 className="about-panel-title">Departemen Pengelola Inventori</h2>
+          <div className="about-dept-grid">
             {departments.map((dept) => (
-              <div key={dept.name} style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--radius-inner)", padding: 14 }}>
-                <b style={{ fontSize: 14, color: "var(--ink)" }}>{dept.name}</b>
-                <p style={{ margin: "4px 0 0", fontSize: 12.5, color: "var(--ink-secondary)", lineHeight: 1.5 }}>
+              <div key={dept.name} className="about-dept-card">
+                <b className="about-dept-card-title">{dept.name}</b>
+                <p className="about-dept-card-desc">
                   {dept.desc}
                 </p>
               </div>
@@ -127,16 +119,16 @@ export default function AboutPage() {
 
         {/* Contact info */}
         <section className="panel">
-          <h2 style={{ fontSize: 18, marginBottom: 12, color: "var(--ink)" }}>Kontak & Sekretariat</h2>
-          <p style={{ fontSize: 13, color: "var(--ink-secondary)", margin: "0 0 16px" }}>
+          <h2 className="about-panel-title">Kontak & Sekretariat</h2>
+          <p className="about-contact-desc">
             Sekretariat BEM Institut Teknologi Del, Gedung Kemahasiswaan IT Del, Jl. Sisingamangaraja, Sitoluama, Laguboti, Toba, Sumatera Utara.
           </p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+          <div className="about-contact-list">
+            <div className="about-contact-item">
               <Mail size={16} className="icon-muted" />
               <span>bem@del.ac.id</span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+            <div className="about-contact-item">
               <Phone size={16} className="icon-muted" />
               <span>+62 812-3456-7890</span>
             </div>
@@ -145,13 +137,13 @@ export default function AboutPage() {
       </main>
 
       {/* Footer */}
-      <footer className="footer" style={{ borderTop: "1px solid var(--border)", padding: "20px 24px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+      <footer className="footer landing-footer">
+        <div className="landing-footer-inner">
           <div>
             <b>BEM IT Del</b>
-            <span style={{ display: "block", fontSize: 12, color: "var(--ink-muted)" }}>Sistem Manajemen Peminjaman Inventori</span>
+            <span className="landing-footer-copy">Sistem Manajemen Peminjaman Inventori</span>
           </div>
-          <span style={{ fontSize: 12, color: "var(--ink-secondary)" }}>Institut Teknologi Del</span>
+          <span className="landing-footer-copy">Institut Teknologi Del</span>
         </div>
       </footer>
     </div>

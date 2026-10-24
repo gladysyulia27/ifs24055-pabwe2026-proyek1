@@ -19,7 +19,7 @@ interface SidebarProps {
 function SidebarUserCard({ user, onLogout }: { user: User; onLogout: () => void }) {
   return (
     <div className="help-card sidebar-user-card">
-      <Link href="/profile" style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0, color: "inherit", textDecoration: "none" }}>
+      <Link href="/profile" className="nav-link-profile sidebar-profile-link">
         <div className="user-avatar">{getUserInitials(user)}</div>
         <div className="sidebar-user-copy">
           <b>{user.full_name}</b>
@@ -47,7 +47,7 @@ export function Sidebar({
     <>
       <aside className={`sidebar ${mobileNav ? "sidebar-open" : ""}`}>
         <div className="brand">
-          <Link href="/dashboard" className="brand-mark-box" style={{ textDecoration: "none" }}>
+          <Link href="/dashboard" className="brand-mark-box link-plain">
             <img src="/logo-bem-del.png" alt="BEM IT Del" className="brand-logo-img" />
           </Link>
           <div className="brand-titles">

@@ -37,38 +37,20 @@ export class ErrorBoundary extends Component<Props, State> {
       if (this.props.fallback) return this.props.fallback;
 
       return (
-        <div style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "400px",
-          padding: "40px 20px",
-          textAlign: "center"
-        }}>
-          <div style={{
-            width: 56,
-            height: 56,
-            borderRadius: "50%",
-            background: "#FFF1F0",
-            display: "grid",
-            placeItems: "center",
-            color: "#C53D34",
-            marginBottom: 16
-          }}>
+        <div className="error-boundary-box">
+          <div className="error-boundary-icon-badge">
             <ShieldAlert size={28} />
           </div>
-          <h2 style={{ fontFamily: "var(--font-display)", fontSize: 22, margin: "0 0 8px", color: "var(--ink)" }}>
+          <h2 className="error-boundary-title">
             Terjadi Kendala Tampilan
           </h2>
-          <p style={{ color: "var(--ink-secondary)", fontSize: 14, maxWidth: 440, margin: "0 0 20px" }}>
+          <p className="error-boundary-desc">
             {this.state.error?.message || "Komponen mengalami kesalahan saat memuat data antarmuka."}
           </p>
           <button
             type="button"
-            className="btn btn-primary"
+            className="btn btn-primary error-boundary-btn"
             onClick={this.handleReset}
-            style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
           >
             <RefreshCw size={15} /> Muat Ulang Halaman
           </button>

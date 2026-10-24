@@ -32,19 +32,19 @@ export default function LandingPage() {
   ];
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--bg-canvas)", color: "var(--ink)", display: "flex", flexDirection: "column" }}>
+    <div className="landing-layout">
       {/* Public Navigation */}
-      <header style={{ borderBottom: "1px solid var(--border)", background: "var(--surface)", padding: "16px 24px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", color: "inherit" }}>
-            <img src="/logo-bem-del.png" alt="Logo BEM IT Del" style={{ height: 38, objectFit: "contain" }} />
+      <header className="landing-header">
+        <div className="landing-header-inner">
+          <Link href="/" className="landing-brand">
+            <img src="/logo-bem-del.png" alt="Logo BEM IT Del" className="landing-brand-logo" />
             <div>
-              <strong style={{ fontSize: 16, display: "block" }}>BEM IT Del</strong>
-              <span style={{ fontSize: 11, color: "var(--ink-secondary)", letterSpacing: "0.5px" }}>SISTEM INVENTORI RESMI</span>
+              <strong className="landing-brand-title">BEM IT Del</strong>
+              <span className="landing-brand-sub">SISTEM INVENTORI RESMI</span>
             </div>
           </Link>
 
-          <nav style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <nav className="landing-nav">
             <Link href="/about" className="text-btn">
               Tentang
             </Link>
@@ -67,33 +67,33 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <main style={{ flex: 1 }}>
-        <section style={{ maxWidth: 1000, margin: "60px auto 40px", padding: "0 24px", textAlign: "center" }}>
-          <div className="auth-hero-pill" style={{ display: "inline-flex", marginBottom: 16 }}>
-            <Sparkles size={14} style={{ color: "var(--pink-ink)" }} />
+      <main className="landing-main">
+        <section className="landing-hero">
+          <div className="auth-hero-pill landing-hero-pill">
+            <Sparkles size={14} className="landing-hero-pill-icon" />
             <span>PORTAL LOGISTIK & INVENTORI KAMPUS</span>
           </div>
 
-          <h1 style={{ fontSize: "clamp(28px, 5vw, 46px)", fontFamily: "var(--font-display)", margin: "0 0 18px", color: "var(--ink)", lineHeight: 1.2 }}>
+          <h1 className="landing-title">
             Satu Sistem, Semua Inventori, <br />
-            <span style={{ color: "var(--olive)" }}>Kegiatan Kampus Lebih Baik</span>
+            <span className="landing-title-accent">Kegiatan Kampus Lebih Baik</span>
           </h1>
 
-          <p style={{ maxWidth: 640, margin: "0 auto 28px", fontSize: 16, color: "var(--ink-secondary)", lineHeight: 1.6 }}>
+          <p className="landing-desc">
             Platform peminjaman dan pengelolaan perlengkapan kegiatan mahasiswa Institut Teknologi Del. Akses logistik departemen BEM secara transparan dan terdata.
           </p>
 
-          <div style={{ display: "flex", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
+          <div className="landing-cta-group">
             {user ? (
-              <Link href="/dashboard" className="btn btn-primary" style={{ padding: "12px 24px", fontSize: 15 }}>
+              <Link href="/dashboard" className="btn btn-primary landing-cta-btn">
                 Masuk ke Dashboard Anda <ArrowRight size={16} />
               </Link>
             ) : (
               <>
-                <Link href="/login" className="btn btn-primary" style={{ padding: "12px 24px", fontSize: 15 }}>
+                <Link href="/login" className="btn btn-primary landing-cta-btn">
                   Mulai Peminjaman Barang <ArrowRight size={16} />
                 </Link>
-                <Link href="/register" className="btn btn-secondary" style={{ padding: "12px 24px", fontSize: 15 }}>
+                <Link href="/register" className="btn btn-secondary landing-cta-btn">
                   Daftar Akun Mahasiswa
                 </Link>
               </>
@@ -102,15 +102,15 @@ export default function LandingPage() {
         </section>
 
         {/* Features Grid */}
-        <section style={{ maxWidth: 1000, margin: "40px auto 60px", padding: "0 24px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 18 }}>
+        <section className="landing-features-section">
+          <div className="landing-features-grid">
             {features.map((f, i) => (
-              <div key={i} className="panel" style={{ padding: 22 }}>
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: "var(--surface)", border: "1px solid var(--border)", display: "grid", placeItems: "center", color: "var(--olive)", marginBottom: 14 }}>
+              <div key={i} className="panel landing-feature-card">
+                <div className="landing-feature-icon-box">
                   {f.icon}
                 </div>
-                <h3 style={{ fontSize: 16, margin: "0 0 8px", color: "var(--ink)" }}>{f.title}</h3>
-                <p style={{ margin: 0, fontSize: 13, color: "var(--ink-secondary)", lineHeight: 1.5 }}>{f.desc}</p>
+                <h3 className="landing-feature-title">{f.title}</h3>
+                <p className="landing-feature-desc">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -118,24 +118,24 @@ export default function LandingPage() {
       </main>
 
       {/* Public Footer */}
-      <footer className="footer" style={{ borderTop: "1px solid var(--border)", padding: "24px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", flexWrap: "wrap", gap: 12 }}>
+      <footer className="footer landing-footer">
+        <div className="landing-footer-inner">
           <div>
             <b>BEM IT Del</b>
-            <span style={{ display: "block", fontSize: 12, color: "var(--ink-muted)" }}>Sistem Manajemen Peminjaman Inventori</span>
+            <span className="landing-footer-copy">Sistem Manajemen Peminjaman Inventori</span>
           </div>
-          <div style={{ display: "flex", gap: 18, fontSize: 13 }}>
-            <Link href="/about" style={{ color: "var(--ink-secondary)", textDecoration: "none" }}>
+          <div className="landing-footer-links">
+            <Link href="/about" className="landing-footer-link">
               Tentang
             </Link>
-            <Link href="/login" style={{ color: "var(--ink-secondary)", textDecoration: "none" }}>
+            <Link href="/login" className="landing-footer-link">
               Masuk
             </Link>
-            <Link href="/register" style={{ color: "var(--ink-secondary)", textDecoration: "none" }}>
+            <Link href="/register" className="landing-footer-link">
               Daftar
             </Link>
           </div>
-          <span style={{ fontSize: 12, color: "var(--ink-muted)" }}>© 2026 BEM Institut Teknologi Del</span>
+          <span className="landing-footer-copy">© 2026 BEM Institut Teknologi Del</span>
         </div>
       </footer>
     </div>

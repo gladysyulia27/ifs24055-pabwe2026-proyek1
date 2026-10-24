@@ -33,17 +33,16 @@ export function Topbar({ pageTitle, user, hasNotifications, onToggleMobileNav }:
       <div className="top-actions">
         <Link
           href="/notifications"
-          className="icon-btn notification-btn"
+          className="icon-btn notification-btn link-plain"
           title="Notifikasi"
           aria-label="Buka notifikasi"
-          style={{ textDecoration: "none" }}
         >
           <Bell size={18} />
           {hasNotifications && <i />}
         </Link>
 
         {user && (
-          <Link href="/profile" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "inherit" }}>
+          <Link href="/profile" className="nav-link-profile">
             <div className="user-avatar">{getUserInitials(user)}</div>
             <div className="user-info">
               <b>{user.full_name}</b>
