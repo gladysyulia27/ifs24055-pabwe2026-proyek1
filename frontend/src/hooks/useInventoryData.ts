@@ -38,13 +38,18 @@ export function useInventoryData(user: User | null) {
       if (calRes.status === "fulfilled") setCalendar(calRes.value);
       if (notifRes.status === "fulfilled") setNotifications(notifRes.value);
 
-      // Jika inventori dan departemen gagal total, tampilkan pesan error
-      if (invRes.status === "rejected" && deptRes.status === "rejected") {
-        setError(getErrorMessage(invRes.reason, "Gagal memuat data inventori dari server backend."));
+      // Report any collection failures informatively
+      const errors: string[] = [];
+      if (invRes.status === "rejected") errors.push(`Inventori: ${getErrorMessage(invRes.reason, "Gagal memuat barang")}`);
+      if (deptRes.status === "rejected") errors.push(`Departemen: ${getErrorMessage(deptRes.reason, "Gagal memuat departemen")}`);
+      if (loanRes.status === "rejected") errors.push(`Peminjaman: ${getErrorMessage(loanRes.reason, "Gagal memuat riwayat")}`);
+
+      if (errors.length > 0) {
+        setError(errors.join(" | "));
       } else {
         setError("");
       }
-    } catch (err) {
+    } catch (err: unknown) {
       setError(getErrorMessage(err, "Gagal memuat data dari server backend."));
     } finally {
       setLoading(false);

@@ -55,13 +55,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setAuthChecking(false);
     }
 
-    // Load demo accounts
+    // Load demo accounts with fallback error handling
     authService
       .getDemoAccounts()
       .then((accs) => {
         if (Array.isArray(accs)) setDemoAccounts(accs);
       })
-      .catch(() => {});
+      .catch((err: unknown) => {
+        // Fallback: demo accounts are optional for testing; retain empty array
+        setDemoAccounts([]);
+      });
   }, []);
 
   const login = useCallback(async (usernameOrEmail: string, password: string): Promise<User> => {
@@ -107,8 +110,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async (): Promise<void> => {
     try {
       await authService.logout();
-    } catch {
-      // Continue client logout even if backend failed
+    } catch (err: unknown) {
+      // In case network disconnects, continue clearing client session so user is logged out
+      void err;
     } finally {
       removeStoredToken();
       setToken(null);
