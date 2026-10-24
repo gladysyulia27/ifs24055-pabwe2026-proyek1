@@ -9,22 +9,19 @@ pipeline {
     stage('Checkout') {
       steps { checkout scm }
     }
-    stage('Install backend dependencies') {
-      steps { dir('backend') { sh 'npm install' } }
-    }
     stage('Install frontend dependencies') {
       steps { dir('frontend') { sh 'npm install' } }
     }
-    stage('Backend smoke test') {
-      steps { dir('backend') { sh 'npm test' } }
+    stage('Frontend tests') {
+      steps { dir('frontend') { sh 'npm test' } }
     }
     stage('Frontend production build') {
       steps { dir('frontend') { sh 'npm run build' } }
     }
     stage('Deployment readiness') {
       steps {
-        echo 'Build and smoke tests passed. Configure a deployment stage for your target host.'
-        archiveArtifacts artifacts: 'frontend/.next/**,backend/src/**,backend/package.json,frontend/package.json', fingerprint: true, allowEmptyArchive: true
+        echo 'Build and tests passed. Configure a deployment stage for your target host.'
+        archiveArtifacts artifacts: 'frontend/.next/**,frontend/package.json', fingerprint: true, allowEmptyArchive: true
       }
     }
   }
