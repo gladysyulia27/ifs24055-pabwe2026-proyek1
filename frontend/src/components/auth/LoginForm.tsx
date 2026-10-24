@@ -22,7 +22,8 @@ export function LoginForm({ values, loading, onChange, onSubmit }: LoginFormProp
     <form className="form-stack" onSubmit={handleSubmit}>
       <Field label="Username atau Email *">
         <input
-          id="login-username"
+          id="username"
+          name="username"
           required
           value={values.username_or_email}
           onChange={(e) => onChange({ ...values, username_or_email: e.target.value })}
@@ -32,7 +33,8 @@ export function LoginForm({ values, loading, onChange, onSubmit }: LoginFormProp
 
       <Field label="Password *">
         <input
-          id="login-password"
+          id="password"
+          name="password"
           type="password"
           required
           value={values.password}
@@ -43,7 +45,7 @@ export function LoginForm({ values, loading, onChange, onSubmit }: LoginFormProp
 
       <button
         type="submit"
-        id="btn-submit-login"
+        id="btn-submit"
         className="btn btn-primary btn-full auth-submit-btn"
         disabled={loading}
       >
