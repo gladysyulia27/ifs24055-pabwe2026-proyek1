@@ -19,8 +19,11 @@ export function LoginForm({ values, loading, onChange, onSubmit }: LoginFormProp
     const usernameInput = form.elements.namedItem("username") as HTMLInputElement | null;
     const passwordInput = form.elements.namedItem("password") as HTMLInputElement | null;
 
-    const username_or_email = usernameInput?.value || values.username_or_email;
-    const password = passwordInput?.value || values.password;
+    const rawUsername = usernameInput?.value !== undefined ? usernameInput.value : values.username_or_email;
+    const rawPassword = passwordInput?.value !== undefined ? passwordInput.value : values.password;
+
+    const username_or_email = (rawUsername || "").trim();
+    const password = rawPassword || "";
 
     onSubmit({ username_or_email, password });
   };

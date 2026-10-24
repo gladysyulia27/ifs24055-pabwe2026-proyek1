@@ -40,9 +40,20 @@ export default function RegisterPage() {
 
     setErrorMsg(null);
     try {
-      const newUser = await register(values);
+      const newUser = await register({
+        ...values,
+        username: values.username.trim(),
+        email: values.email.trim(),
+        identifier: values.identifier.trim(),
+        full_name: values.full_name.trim(),
+        contact_phone: values.contact_phone ? values.contact_phone.trim() : undefined
+      });
       showToast(`Pendaftaran berhasil! Selamat datang, ${newUser.full_name}.`);
-      router.replace("/dashboard");
+      if (typeof window !== "undefined") {
+        window.location.href = "/dashboard";
+      } else {
+        router.replace("/dashboard");
+      }
     } catch (err) {
       const msg = getErrorMessage(err, "Pendaftaran gagal.");
       setErrorMsg(msg);
