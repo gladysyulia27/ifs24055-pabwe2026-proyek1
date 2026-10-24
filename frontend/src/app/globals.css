@@ -2458,6 +2458,12 @@ tbody td .table-sub {
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.06));
 }
 
+.item-thumb-img--large {
+  width: 48px;
+  height: 48px;
+}
+
+
 .selected-item {
   display: flex;
   align-items: center;
@@ -3370,10 +3376,14 @@ tbody td .table-sub {
 
 /* Skeleton Loading CSS Classes */
 .skeleton-box {
+  width: var(--sk-w, 100%);
+  height: var(--sk-h, 20px);
+  border-radius: var(--sk-r, 8px);
   background: linear-gradient(90deg, rgba(235, 230, 220, 0.6) 0%, rgba(245, 242, 235, 0.9) 50%, rgba(235, 230, 220, 0.6) 100%);
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.5s infinite;
 }
+
 
 .skeleton-stat-card {
   opacity: 0.8;

@@ -1,3 +1,14 @@
+/**
+ * itemImage — Resolves the best available thumbnail URL for an inventory item.
+ *
+ * Priority order:
+ *   1. `item.image_url` — user-uploaded photo stored on the server
+ *   2. `itemImageMap` keyword match — built-in static asset matched by item name
+ *   3. `null` — caller should render a generic icon placeholder
+ *
+ * The static map (`itemImageMap`) is the only source of "data statis untuk gambar item"
+ * and acts as a graceful fallback for items that have not yet had a photo uploaded.
+ */
 import { Item } from "@/types";
 
 export const itemImageMap: Record<string, string> = {

@@ -1,3 +1,10 @@
+/**
+ * useActionRunner — Shared async action executor for CRUD operations.
+ *
+ * Provides a single `run(action)` callback that: executes the async action,
+ * triggers a success toast and a data refresh on success, or shows an error
+ * toast on failure. Eliminates boilerplate try/catch blocks in view components.
+ */
 "use client";
 
 import { useCallback } from "react";

@@ -1,3 +1,10 @@
+/**
+ * useInventoryFilter — Client-side search and filter logic for the inventory catalog.
+ *
+ * Manages the active search query string and returns the filtered item list
+ * via a memoized `filterItems` call. Separates filter logic from data-fetching
+ * so InventoryView stays focused on rendering.
+ */
 import { useMemo, useState } from "react";
 import { Item } from "@/types";
 import { filterItems } from "@/utils/inventory";

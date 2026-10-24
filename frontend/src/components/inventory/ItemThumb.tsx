@@ -1,3 +1,8 @@
+/**
+ * ItemThumb — Compact image thumbnail for an inventory item.
+ * Falls back to a Package icon placeholder when no image is available.
+ * The `large` variant is used inside loan/return modals.
+ */
 import React from "react";
 import { Package } from "lucide-react";
 import { Item } from "@/types";
@@ -14,7 +19,11 @@ export function ItemThumb({ source, alt, large = false }: ItemThumbProps) {
   const src = getItemImage(source);
   if (src) {
     return (
-      <img src={src} alt={alt} className="item-thumb-img" style={large ? { width: 48, height: 48 } : undefined} />
+      <img
+        src={src}
+        alt={alt}
+        className={`item-thumb-img${large ? " item-thumb-img--large" : ""}`}
+      />
     );
   }
   return (
@@ -23,6 +32,7 @@ export function ItemThumb({ source, alt, large = false }: ItemThumbProps) {
     </div>
   );
 }
+
 
 interface ItemSummaryProps extends ItemThumbProps {
   title: string;

@@ -1,3 +1,10 @@
+/**
+ * useFormSubmission — Reusable form-submission state manager.
+ *
+ * Tracks `submitting` state and orchestrates the submit lifecycle:
+ * validates data, calls an async handler, then invokes onClose on success
+ * or shows an error toast on failure. Used by ItemModal and LoanModal.
+ */
 "use client";
 
 import { useState } from "react";

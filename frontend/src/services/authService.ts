@@ -1,3 +1,10 @@
+/**
+ * authService — Client-side authentication service layer.
+ *
+ * Validates credentials and registration payloads before they reach the API,
+ * transforms raw API responses into normalized User objects, and encapsulates
+ * all auth-related network calls (login, register, logout, getMe).
+ */
 import { LoginCredentials, RegisterPayload, User, ValidationResult } from "@/types";
 import { authApi } from "./api";
 import { validateLoginForm, validateRegisterForm } from "@/utils/validation";

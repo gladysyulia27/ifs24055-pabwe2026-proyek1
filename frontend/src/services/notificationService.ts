@@ -1,3 +1,9 @@
+/**
+ * notificationService — Fetches and normalizes notification data.
+ *
+ * Wraps the notifications API and ensures the returned shape always contains
+ * both `pending` and `due_returns` arrays, even when the server omits them.
+ */
 import { NotificationsData } from "@/types";
 import { notificationsApi } from "./api";
 

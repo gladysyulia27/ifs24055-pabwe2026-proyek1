@@ -1,3 +1,10 @@
+/**
+ * inventoryService — Business logic layer for inventory item management.
+ *
+ * Provides payload validation, item transformation (availability status,
+ * stock percentage), and typed wrappers around the inventory REST API endpoints.
+ * All API responses are normalized to guarantee a stable shape for UI consumption.
+ */
 import { Item, ItemPayload, TransformedItem, ValidationResult } from "@/types";
 import { inventoryApi } from "./api";
 import { getItemImage } from "@/utils/itemImage";

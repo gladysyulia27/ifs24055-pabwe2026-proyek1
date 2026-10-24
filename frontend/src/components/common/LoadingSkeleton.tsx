@@ -1,3 +1,13 @@
+/**
+ * LoadingSkeleton — Reusable animated placeholder components shown while
+ * data is being fetched. Each variant mirrors the shape of its real counterpart
+ * (stat card, item card, table row) so layout does not shift on load.
+ *
+ * CSS custom properties consumed by `.skeleton-box` in globals.css:
+ *   --sk-w  → width
+ *   --sk-h  → height
+ *   --sk-r  → border-radius
+ */
 "use client";
 
 import React from "react";
@@ -15,18 +25,16 @@ export function SkeletonBox({
   className?: string;
   style?: React.CSSProperties;
 }) {
-  return (
-    <div
-      className={`skeleton-box ${className}`}
-      style={{
-        width,
-        height,
-        borderRadius,
-        ...style
-      }}
-    />
-  );
+  const cssVars = {
+    "--sk-w": typeof width === "number" ? `${width}px` : width,
+    "--sk-h": typeof height === "number" ? `${height}px` : height,
+    "--sk-r": borderRadius,
+    ...style
+  } as React.CSSProperties;
+
+  return <div className={`skeleton-box ${className}`} style={cssVars} />;
 }
+
 
 export function StatSkeleton() {
   return (

@@ -1,3 +1,11 @@
+/**
+ * loanService — Business logic layer for loan (peminjaman) lifecycle management.
+ *
+ * Validates loan payloads against client-side rules aligned with the backend,
+ * transforms raw API loan objects into display-ready shapes with status classes
+ * and date formatting, and provides typed wrappers for create, action, and return
+ * API endpoints.
+ */
 import { Loan, LoanAction, LoanPayload, TransformedLoan, ValidationResult } from "@/types";
 import { loansApi } from "./api";
 import { statusClass } from "@/utils/loans";
