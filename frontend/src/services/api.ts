@@ -26,29 +26,62 @@ let inMemoryToken: string | null = null;
 export function getStoredToken(): string | null {
   if (typeof window === "undefined") return inMemoryToken;
   // 1. Check document cookie
-  const match = document.cookie.match(new RegExp(`(^|;\\s*)${TOKEN_KEY}=([^;]+)`));
-  if (match) {
-    const token = decodeURIComponent(match[2]);
-    inMemoryToken = token;
-    return token;
+  try {
+    const match = document.cookie.match(new RegExp(`(^|;\\s*)${TOKEN_KEY}=([^;]+)`));
+    if (match) {
+      const token = decodeURIComponent(match[2]);
+      inMemoryToken = token;
+      return token;
+    }
+  } catch {
+    // Cookie read blocked
   }
-  // 2. In-memory fallback
+  // 2. Check localStorage (essential for headless automation like Puppeteer/Lighthouse)
+  try {
+    const local = localStorage.getItem(TOKEN_KEY);
+    if (local) {
+      inMemoryToken = local;
+      return local;
+    }
+  } catch {
+    // LocalStorage blocked
+  }
+  // 3. In-memory fallback
   return inMemoryToken;
 }
 
 export function setStoredToken(token: string): void {
   inMemoryToken = token;
   if (typeof window !== "undefined") {
-    // Set cookie with SameSite and secure path
-    const isSecure = window.location.protocol === "https:" ? "; Secure" : "";
-    document.cookie = `${TOKEN_KEY}=${encodeURIComponent(token)}; path=/; max-age=604800; SameSite=Lax${isSecure}`;
+    // Set cookie
+    try {
+      const isSecure = window.location.protocol === "https:" ? "; Secure" : "";
+      document.cookie = `${TOKEN_KEY}=${encodeURIComponent(token)}; path=/; max-age=604800; SameSite=Lax${isSecure}`;
+    } catch {
+      // Cookie set failed
+    }
+    // Set localStorage for headless audit persistence
+    try {
+      localStorage.setItem(TOKEN_KEY, token);
+    } catch {
+      // LocalStorage blocked
+    }
   }
 }
 
 export function removeStoredToken(): void {
   inMemoryToken = null;
   if (typeof window !== "undefined") {
-    document.cookie = `${TOKEN_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+    try {
+      document.cookie = `${TOKEN_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+    } catch {
+      // ignore
+    }
+    try {
+      localStorage.removeItem(TOKEN_KEY);
+    } catch {
+      // ignore
+    }
   }
 }
 
