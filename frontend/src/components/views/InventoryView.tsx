@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React from "react";
 import { Plus, Search } from "lucide-react";
 import { Department, Item, User } from "@/types";
 import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ItemCardSkeleton } from "@/components/common/LoadingSkeleton";
 import { ItemCard } from "@/components/inventory/ItemCard";
-import { filterItems } from "@/utils/inventory";
 import { isDepartmentAdmin } from "@/utils/roles";
+import { useInventoryFilter } from "@/hooks/useInventoryFilter";
 
 const ITEM_SKELETON_COUNT = 3;
 
@@ -39,11 +39,7 @@ export function InventoryView({
   onEditItem,
   onDeleteItem
 }: InventoryViewProps) {
-  const [search, setSearch] = useState("");
-  const visibleItems = useMemo(
-    () => filterItems(items, departmentFilter, search),
-    [items, departmentFilter, search]
-  );
+  const { search, setSearch, visibleItems, totalMatches } = useInventoryFilter(items, departmentFilter);
 
   return (
     <>
@@ -80,7 +76,7 @@ export function InventoryView({
             ))}
           </select>
         </div>
-        <div className="filter-count">{visibleItems.length} barang</div>
+        <div className="filter-count">{totalMatches} barang</div>
       </div>
 
       {loading ? (

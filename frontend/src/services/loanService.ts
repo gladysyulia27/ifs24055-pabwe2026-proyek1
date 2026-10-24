@@ -1,41 +1,25 @@
 import { Loan, LoanAction, LoanPayload, TransformedLoan, ValidationResult } from "@/types";
 import { loansApi } from "./api";
 import { statusClass } from "@/utils/loans";
+import { validateLoanForm } from "@/utils/validation";
 
 /**
- * Validates a loan request payload.
+ * Validates a loan request payload aligned with backend constraints.
  */
-export function validateLoanPayload(payload: LoanPayload): ValidationResult {
+export function validateLoanPayload(payload: LoanPayload, maxAvailableStock = 999999): ValidationResult {
   if (!payload.inventory_id || payload.inventory_id <= 0) {
     return { isValid: false, error: "Pilih barang yang ingin dipinjam terlebih dahulu." };
   }
 
-  if (!payload.borrower_name || payload.borrower_name.trim().length === 0) {
-    return { isValid: false, error: "Nama lengkap peminjam wajib diisi." };
-  }
+  const error = validateLoanForm({
+    purpose: payload.purpose || "",
+    quantity: payload.quantity,
+    start_date: payload.start_date,
+    due_date: payload.due_date,
+    maxAvailableStock
+  });
 
-  if (!payload.borrower_id || payload.borrower_id.trim().length === 0) {
-    return { isValid: false, error: "NIM / Nomor Identitas peminjam wajib diisi." };
-  }
-
-  if (!payload.purpose || payload.purpose.trim().length === 0) {
-    return { isValid: false, error: "Tujuan peminjaman barang harus dijelaskan." };
-  }
-
-  const quantity = Number(payload.quantity);
-  if (isNaN(quantity) || quantity <= 0) {
-    return { isValid: false, error: "Jumlah barang yang dipinjam minimal 1 unit." };
-  }
-
-  if (!payload.start_date || !payload.due_date) {
-    return { isValid: false, error: "Tanggal mulai dan batas pengembalian wajib ditentukan." };
-  }
-
-  if (new Date(payload.start_date) > new Date(payload.due_date)) {
-    return { isValid: false, error: "Tanggal batas pengembalian tidak boleh sebelum tanggal mulai peminjaman." };
-  }
-
-  return { isValid: true, error: null };
+  return { isValid: !error, error };
 }
 
 /**

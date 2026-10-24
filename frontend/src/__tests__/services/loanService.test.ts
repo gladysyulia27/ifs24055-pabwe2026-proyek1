@@ -29,7 +29,7 @@ describe("Loan Service Logic", () => {
     it("rejects non-positive quantity", () => {
       const res = validateLoanPayload({ ...validPayload, quantity: 0 });
       expect(res.isValid).toBe(false);
-      expect(res.error).toBe("Jumlah barang yang dipinjam minimal 1 unit.");
+      expect(res.error).toBe("Jumlah pinjam minimal 1 unit.");
     });
 
     it("rejects invalid date range", () => {
@@ -39,7 +39,7 @@ describe("Loan Service Logic", () => {
         due_date: "2026-10-25"
       });
       expect(res.isValid).toBe(false);
-      expect(res.error).toBe("Tanggal batas pengembalian tidak boleh sebelum tanggal mulai peminjaman.");
+      expect(res.error).toBe("Tanggal pengembalian harus sama atau setelah tanggal pinjam.");
     });
   });
 

@@ -9,8 +9,8 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { StatSkeleton } from "@/components/common/LoadingSkeleton";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { getDepartmentColor, getDepartmentIcon } from "@/utils/departmentStyles";
-import { sumAvailableStock, sumTotalStock } from "@/utils/inventory";
-import { isActiveLoan, isPendingLoan, statusClass } from "@/utils/loans";
+import { statusClass } from "@/utils/loans";
+import { DashboardComputedStats, useDashboardStats } from "@/hooks/useDashboardStats";
 
 const RECENT_LOANS_LIMIT = 5;
 const STAT_SKELETON_COUNT = 4;
@@ -32,7 +32,13 @@ function LinkButton({ label, onClick }: { label: string; onClick: () => void }) 
   );
 }
 
-function DashboardStats({ items, loans, loading }: Pick<DashboardViewProps, "items" | "loans" | "loading">) {
+function DashboardStats({
+  stats,
+  loading
+}: {
+  stats: DashboardComputedStats;
+  loading: boolean;
+}) {
   if (loading) {
     return (
       <div className="stats-grid">
@@ -43,33 +49,32 @@ function DashboardStats({ items, loans, loading }: Pick<DashboardViewProps, "ite
     );
   }
 
-  const activeLoans = loans.filter(isActiveLoan);
-  const stats = [
+  const cards = [
     {
       icon: <Package size={20} />,
       label: "Total Inventori",
-      value: sumTotalStock(items),
-      sub: `${items.length} jenis barang`,
+      value: stats.totalStockUnits,
+      sub: `${stats.totalItems} jenis barang`,
       color: "blue"
     },
     {
       icon: <ArrowDownToLine size={20} />,
       label: "Sedang Dipinjam",
-      value: activeLoans.reduce((sum, l) => sum + l.quantity, 0),
-      sub: `${activeLoans.length} transaksi aktif`,
+      value: stats.activeBorrowedUnits,
+      sub: `${stats.activeLoansCount} transaksi aktif`,
       color: "pink"
     },
     {
       icon: <CheckCircle2 size={20} />,
       label: "Barang Tersedia",
-      value: sumAvailableStock(items),
+      value: stats.availableStockUnits,
       sub: "Siap dipinjam",
       color: "green"
     },
     {
       icon: <Clock3 size={20} />,
       label: "Menunggu Approval",
-      value: loans.filter(isPendingLoan).length,
+      value: stats.pendingApprovalCount,
       sub: "Perlu ditinjau",
       color: "yellow"
     }
@@ -77,19 +82,22 @@ function DashboardStats({ items, loans, loading }: Pick<DashboardViewProps, "ite
 
   return (
     <div className="stats-grid">
-      {stats.map((stat) => (
-        <StatCard key={stat.label} {...stat} />
+      {cards.map((card) => (
+        <StatCard key={card.label} {...card} />
       ))}
     </div>
   );
 }
 
 function DepartmentSummary({
-  departments,
-  items,
+  summaries,
   onNavigate,
   onSelectDepartment
-}: Pick<DashboardViewProps, "departments" | "items" | "onNavigate" | "onSelectDepartment">) {
+}: {
+  summaries: DashboardComputedStats["departmentSummaries"];
+  onNavigate: (page: PageKey) => void;
+  onSelectDepartment: (departmentName: string) => void;
+}) {
   return (
     <section className="panel department-panel">
       <PanelHead
@@ -98,8 +106,7 @@ function DepartmentSummary({
         action={<LinkButton label="Lihat semua" onClick={() => onNavigate("Departemen")} />}
       />
       <div className="dept-list">
-        {departments.map((department) => {
-          const deptItems = items.filter((i) => i.department_id === department.id);
+        {summaries.map((department) => {
           const Icon = getDepartmentIcon(department.name);
           return (
             <div className="dept-row" key={department.id} onClick={() => onSelectDepartment(department.name)}>
@@ -108,9 +115,9 @@ function DepartmentSummary({
               </div>
               <div className="dept-name">
                 <b>{department.name}</b>
-                <span>{deptItems.length} jenis barang</span>
+                <span>{department.itemCount} jenis barang</span>
               </div>
-              <div className="dept-total">{sumTotalStock(deptItems)} unit</div>
+              <div className="dept-total">{department.totalUnits} unit</div>
             </div>
           );
         })}
@@ -149,6 +156,8 @@ function RecentActivity({ loans, onNavigate }: Pick<DashboardViewProps, "loans" 
 }
 
 export function DashboardView({ departments, items, loans, loading, onNavigate, onSelectDepartment }: DashboardViewProps) {
+  const computedStats = useDashboardStats(departments, items, loans);
+
   return (
     <>
       <PageHeader
@@ -162,12 +171,11 @@ export function DashboardView({ departments, items, loans, loading, onNavigate, 
         }
       />
 
-      <DashboardStats items={items} loans={loans} loading={loading} />
+      <DashboardStats stats={computedStats} loading={loading} />
 
       <div className="dashboard-grid">
         <DepartmentSummary
-          departments={departments}
-          items={items}
+          summaries={computedStats.departmentSummaries}
           onNavigate={onNavigate}
           onSelectDepartment={onSelectDepartment}
         />

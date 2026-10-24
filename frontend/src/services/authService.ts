@@ -1,46 +1,21 @@
 import { LoginCredentials, RegisterPayload, User, ValidationResult } from "@/types";
 import { authApi } from "./api";
+import { validateLoginForm, validateRegisterForm } from "@/utils/validation";
 
 /**
- * Validates login credentials format.
+ * Validates login credentials format strictly aligned with server rules.
  */
 export function validateLoginPayload(payload: LoginCredentials): ValidationResult {
-  if (!payload.username_or_email || payload.username_or_email.trim().length === 0) {
-    return { isValid: false, error: "Username atau email wajib diisi." };
-  }
-
-  if (!payload.password || payload.password.length === 0) {
-    return { isValid: false, error: "Password wajib diisi." };
-  }
-
-  return { isValid: true, error: null };
+  const error = validateLoginForm(payload.username_or_email, payload.password);
+  return { isValid: !error, error };
 }
 
 /**
- * Validates registration payload according to academic requirements.
+ * Validates registration payload according to strict server requirements.
  */
 export function validateRegisterPayload(payload: RegisterPayload): ValidationResult {
-  if (!payload.username || payload.username.trim().length < 3) {
-    return { isValid: false, error: "Username minimal 3 karakter." };
-  }
-
-  if (!payload.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email.trim())) {
-    return { isValid: false, error: "Format alamat email tidak valid." };
-  }
-
-  if (!payload.password || payload.password.length < 6) {
-    return { isValid: false, error: "Password akun minimal 6 karakter." };
-  }
-
-  if (!payload.full_name || payload.full_name.trim().length === 0) {
-    return { isValid: false, error: "Nama lengkap mahasiswa wajib diisi." };
-  }
-
-  if (!payload.identifier || payload.identifier.trim().length === 0) {
-    return { isValid: false, error: "NIM / Nomor Identitas resmi wajib diisi." };
-  }
-
-  return { isValid: true, error: null };
+  const error = validateRegisterForm(payload);
+  return { isValid: !error, error };
 }
 
 /**

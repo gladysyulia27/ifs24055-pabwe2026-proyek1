@@ -1,14 +1,16 @@
 import { describe, it, expect } from "vitest";
 import {
   isValidEmail,
+  isValidUsername,
   isValidIdentifier,
+  isValidPhone,
   validateLoginForm,
   validateRegisterForm,
   validateItemForm,
   validateLoanForm
 } from "@/utils/validation";
 
-describe("Validation Utilities", () => {
+describe("Validation Utilities (Synchronized with Backend)", () => {
   describe("isValidEmail", () => {
     it("validates correct email addresses", () => {
       expect(isValidEmail("user@del.ac.id")).toBe(true);
@@ -22,6 +24,21 @@ describe("Validation Utilities", () => {
     });
   });
 
+  describe("isValidUsername", () => {
+    it("approves alphanumeric characters, dots, dashes, and underscores", () => {
+      expect(isValidUsername("gladys27")).toBe(true);
+      expect(isValidUsername("user.name")).toBe(true);
+      expect(isValidUsername("admin-01")).toBe(true);
+      expect(isValidUsername("user_del")).toBe(true);
+    });
+
+    it("rejects invalid characters and out-of-range lengths", () => {
+      expect(isValidUsername("ab")).toBe(false); // too short
+      expect(isValidUsername("user@name")).toBe(false); // invalid symbol
+      expect(isValidUsername("a".repeat(31))).toBe(false); // too long
+    });
+  });
+
   describe("isValidIdentifier", () => {
     it("validates Del student NIM or staff ID", () => {
       expect(isValidIdentifier("11422001")).toBe(true);
@@ -31,6 +48,19 @@ describe("Validation Utilities", () => {
     it("rejects short or empty identifiers", () => {
       expect(isValidIdentifier("ab")).toBe(false);
       expect(isValidIdentifier("")).toBe(false);
+    });
+  });
+
+  describe("isValidPhone", () => {
+    it("accepts valid phone strings", () => {
+      expect(isValidPhone("081234567890")).toBe(true);
+      expect(isValidPhone("+62 812-3456-7890")).toBe(true);
+      expect(isValidPhone("")).toBe(true); // optional
+    });
+
+    it("rejects invalid phone characters", () => {
+      expect(isValidPhone("123")).toBe(false); // too short
+      expect(isValidPhone("0812abc345")).toBe(false);
     });
   });
 
@@ -60,7 +90,7 @@ describe("Validation Utilities", () => {
 
     it("rejects short username", () => {
       expect(validateRegisterForm({ ...validForm, username: "ab" })).toBe(
-        "Username minimal 3 karakter."
+        "Username harus memiliki panjang antara 3 hingga 30 karakter."
       );
     });
 
@@ -89,10 +119,10 @@ describe("Validation Utilities", () => {
 
     it("rejects negative or invalid stock", () => {
       expect(validateItemForm({ name: "Kamera", total_stock: "-1" })).toBe(
-        "Stok total harus berupa bilangan bulat lebih besar atau sama dengan 0."
+        "Stok harus berupa bilangan bulat non-negatif."
       );
       expect(validateItemForm({ name: "Kamera", total_stock: "abc" })).toBe(
-        "Stok total harus berupa bilangan bulat lebih besar atau sama dengan 0."
+        "Stok harus berupa bilangan bulat non-negatif."
       );
     });
   });
@@ -118,13 +148,13 @@ describe("Validation Utilities", () => {
 
     it("rejects zero or negative quantity", () => {
       expect(validateLoanForm({ ...validLoan, quantity: "0" })).toBe(
-        "Jumlah barang harus berupa bilangan bulat minimal 1 unit."
+        "Jumlah pinjam minimal 1 unit."
       );
     });
 
     it("rejects quantity exceeding available stock", () => {
       expect(validateLoanForm({ ...validLoan, quantity: "6" })).toBe(
-        "Jumlah peminjaman (6 unit) melebihi stok yang tersedia (5 unit)."
+        "Stok tersedia hanya 5 unit."
       );
     });
 
@@ -135,7 +165,7 @@ describe("Validation Utilities", () => {
           start_date: "2026-10-28",
           due_date: "2026-10-25"
         })
-      ).toBe("Batas tanggal kembali tidak boleh lebih awal dari tanggal mulai peminjaman.");
+      ).toBe("Tanggal pengembalian harus sama atau setelah tanggal pinjam.");
     });
   });
 });

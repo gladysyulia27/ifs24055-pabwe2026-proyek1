@@ -1,19 +1,46 @@
 /**
- * Client-side input validation utilities
+ * Client-side input validation utilities, strictly aligned with backend server rules.
  */
 
+// Email regex matching RFC 5322 subset implemented on backend
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+// Username regex: alphanumeric, dots, hyphens, and underscores (3-30 chars)
+const USERNAME_REGEX = /^[a-zA-Z0-9_\-\.]{3,30}$/;
+
+// Academic identifier NIM/NIP regex (3-30 chars)
+const IDENTIFIER_REGEX = /^[a-zA-Z0-9_\-\.\/ ]{3,30}$/;
+
+// Phone number regex (7-25 chars)
+const PHONE_REGEX = /^[0-9+()\- ]{7,25}$/;
+
 export function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  if (!email || email.length > 100) return false;
+  return EMAIL_REGEX.test(email.trim());
+}
+
+export function isValidUsername(username: string): boolean {
+  if (!username) return false;
+  return USERNAME_REGEX.test(username.trim());
 }
 
 export function isValidIdentifier(id: string): boolean {
-  // Del student NIM (e.g. 11S21001) or staff ID: at least 4 alphanumeric chars
-  return /^[a-zA-Z0-9_\-\.]{4,20}$/.test(id.trim());
+  if (!id) return false;
+  return IDENTIFIER_REGEX.test(id.trim());
 }
 
-export function validateLoginForm(usernameOrEmail: string, password: string):string | null {
-  if (!usernameOrEmail.trim()) return "Username atau Email wajib diisi.";
-  if (!password) return "Password wajib diisi.";
+export function isValidPhone(phone: string): boolean {
+  if (!phone) return true; // phone is optional
+  return PHONE_REGEX.test(phone.trim());
+}
+
+export function validateLoginForm(usernameOrEmail: string, password: string): string | null {
+  if (!usernameOrEmail?.trim()) {
+    return "Username atau Email wajib diisi.";
+  }
+  if (!password) {
+    return "Password wajib diisi.";
+  }
   return null;
 }
 
@@ -23,22 +50,48 @@ export function validateRegisterForm(form: {
   password: string;
   full_name: string;
   identifier: string;
+  contact_phone?: string;
 }): string | null {
-  if (!form.username.trim() || form.username.trim().length < 3) {
-    return "Username minimal 3 karakter.";
+  const username = form.username?.trim() || "";
+  const email = form.email?.trim() || "";
+  const password = form.password || "";
+  const fullName = form.full_name?.trim() || "";
+  const identifier = form.identifier?.trim() || "";
+  const phone = form.contact_phone?.trim() || "";
+
+  if (username.length < 3 || username.length > 30) {
+    return "Username harus memiliki panjang antara 3 hingga 30 karakter.";
   }
-  if (!isValidEmail(form.email)) {
-    return "Format alamat email tidak valid (contoh: user@gmail.com atau user@del.ac.id).";
+  if (!isValidUsername(username)) {
+    return "Username hanya boleh mengandung huruf, angka, titik (.), strip (-), atau garis bawah (_).";
   }
-  if (!form.password || form.password.length < 6) {
+
+  if (email.length > 100 || !isValidEmail(email)) {
+    return "Format alamat email tidak valid (contoh: user@del.ac.id atau user@gmail.com).";
+  }
+
+  if (password.length < 6) {
     return "Password minimal 6 karakter.";
   }
-  if (!form.full_name.trim() || form.full_name.trim().length < 2) {
-    return "Nama lengkap wajib diisi minimal 2 karakter.";
+  if (password.length > 128) {
+    return "Password maksimal 128 karakter.";
   }
-  if (!isValidIdentifier(form.identifier)) {
-    return "NIM/NIP minimal 4 karakter alfanumerik.";
+
+  if (fullName.length < 2 || fullName.length > 100) {
+    return "Nama lengkap harus memiliki panjang antara 2 hingga 100 karakter.";
   }
+
+  if (identifier.length < 3 || identifier.length > 30) {
+    return "NIM/NIP harus memiliki panjang antara 3 hingga 30 karakter.";
+  }
+  if (!isValidIdentifier(identifier)) {
+    return "Format NIM/NIP tidak valid (hanya alfanumerik, strip, garis miring, atau titik).";
+  }
+
+  if (phone && !isValidPhone(phone)) {
+    return "Format nomor kontak tidak valid (contoh: 08123456789 atau +628123456789).";
+  }
+
   return null;
 }
 
@@ -46,10 +99,12 @@ export function validateItemForm(form: {
   name: string;
   total_stock: string | number;
 }): string | null {
-  if (!form.name.trim()) return "Nama barang wajib diisi.";
+  if (!form.name?.trim()) {
+    return "Nama barang wajib diisi.";
+  }
   const stock = Number(form.total_stock);
-  if (isNaN(stock) || stock < 0 || !Number.isInteger(stock)) {
-    return "Stok total harus berupa bilangan bulat lebih besar atau sama dengan 0.";
+  if (!Number.isInteger(stock) || stock < 0) {
+    return "Stok harus berupa bilangan bulat non-negatif.";
   }
   return null;
 }
@@ -61,19 +116,21 @@ export function validateLoanForm(form: {
   due_date: string;
   maxAvailableStock: number;
 }): string | null {
-  if (!form.purpose.trim()) return "Tujuan peminjaman wajib diisi.";
+  if (!form.purpose?.trim()) {
+    return "Tujuan peminjaman wajib diisi.";
+  }
   const qty = Number(form.quantity);
-  if (isNaN(qty) || qty <= 0 || !Number.isInteger(qty)) {
-    return "Jumlah barang harus berupa bilangan bulat minimal 1 unit.";
+  if (!Number.isInteger(qty) || qty < 1) {
+    return "Jumlah pinjam minimal 1 unit.";
   }
   if (qty > form.maxAvailableStock) {
-    return `Jumlah peminjaman (${qty} unit) melebihi stok yang tersedia (${form.maxAvailableStock} unit).`;
+    return `Stok tersedia hanya ${form.maxAvailableStock} unit.`;
   }
   if (!form.start_date || !form.due_date) {
     return "Tanggal mulai dan batas pengembalian wajib ditentukan.";
   }
-  if (new Date(form.due_date) < new Date(form.start_date)) {
-    return "Batas tanggal kembali tidak boleh lebih awal dari tanggal mulai peminjaman.";
+  if (form.due_date < form.start_date) {
+    return "Tanggal pengembalian harus sama atau setelah tanggal pinjam.";
   }
   return null;
 }

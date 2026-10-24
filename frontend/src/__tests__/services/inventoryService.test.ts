@@ -35,7 +35,7 @@ describe("Inventory Service Logic", () => {
         total_stock: -3
       });
       expect(res.isValid).toBe(false);
-      expect(res.error).toBe("Jumlah total stok barang tidak boleh bernilai negatif.");
+      expect(res.error).toBe("Stok harus berupa bilangan bulat non-negatif.");
     });
   });
 

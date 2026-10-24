@@ -1,23 +1,23 @@
 import { Item, ItemPayload, TransformedItem, ValidationResult } from "@/types";
 import { inventoryApi } from "./api";
 import { getItemImage } from "@/utils/itemImage";
+import { validateItemForm } from "@/utils/validation";
 
 /**
  * Validates inventory item creation and modification payload.
  */
 export function validateItemPayload(payload: Partial<ItemPayload>): ValidationResult {
-  if (!payload.name || payload.name.trim().length === 0) {
-    return { isValid: false, error: "Nama barang wajib diisi." };
+  const error = validateItemForm({
+    name: payload.name || "",
+    total_stock: payload.total_stock ?? 0
+  });
+
+  if (error) {
+    return { isValid: false, error };
   }
 
   if (payload.department_id !== undefined && (!payload.department_id || payload.department_id <= 0)) {
     return { isValid: false, error: "Departemen pemilik barang harus dipilih secara valid." };
-  }
-
-  if (payload.total_stock !== undefined) {
-    if (isNaN(payload.total_stock) || payload.total_stock < 0) {
-      return { isValid: false, error: "Jumlah total stok barang tidak boleh bernilai negatif." };
-    }
   }
 
   return { isValid: true, error: null };
