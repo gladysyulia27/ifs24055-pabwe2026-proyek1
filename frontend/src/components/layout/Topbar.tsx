@@ -1,19 +1,19 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { Bell, Menu } from "lucide-react";
-import { PageKey, User } from "@/types";
+import { User } from "@/types";
 import { getUserInitials, isDepartmentAdmin } from "@/utils/roles";
 
 interface TopbarProps {
-  page: PageKey;
+  pageTitle: string;
   user: User | null;
   hasNotifications: boolean;
   onToggleMobileNav: () => void;
-  onOpenNotifications: () => void;
 }
 
-export function Topbar({ page, user, hasNotifications, onToggleMobileNav, onOpenNotifications }: TopbarProps) {
+export function Topbar({ pageTitle, user, hasNotifications, onToggleMobileNav }: TopbarProps) {
   return (
     <header className="topbar">
       <div className="topbar-left">
@@ -26,30 +26,30 @@ export function Topbar({ page, user, hasNotifications, onToggleMobileNav, onOpen
           <Menu size={20} />
         </button>
         <div className="crumb">
-          BEM IT Del <span>/</span> <b>{page}</b>
+          BEM IT Del <span>/</span> <b>{pageTitle}</b>
         </div>
       </div>
 
       <div className="top-actions">
-        <button
-          type="button"
+        <Link
+          href="/notifications"
           className="icon-btn notification-btn"
-          onClick={onOpenNotifications}
           title="Notifikasi"
           aria-label="Buka notifikasi"
+          style={{ textDecoration: "none" }}
         >
           <Bell size={18} />
           {hasNotifications && <i />}
-        </button>
+        </Link>
 
         {user && (
-          <>
+          <Link href="/profile" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "inherit" }}>
             <div className="user-avatar">{getUserInitials(user)}</div>
             <div className="user-info">
               <b>{user.full_name}</b>
               <span>{isDepartmentAdmin(user) ? `Pengelola ${user.department_name}` : "Peminjam Mahasiswa"}</span>
             </div>
-          </>
+          </Link>
         )}
       </div>
     </header>

@@ -97,7 +97,7 @@ export interface LoanFormData {
   due_date: string;
 }
 
-export type PageKey = "Dashboard" | "Inventori" | "Peminjaman" | "Kalender" | "Notifikasi" | "Departemen";
+export type PageKey = "Dashboard" | "Inventori" | "Peminjaman" | "Kalender" | "Notifikasi" | "Departemen" | "Profil";
 
 export type LoanAction = "approve" | "reject" | "confirm-return";
 

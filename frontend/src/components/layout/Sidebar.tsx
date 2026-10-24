@@ -1,17 +1,17 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { LogOut } from "lucide-react";
-import { PageKey, User } from "@/types";
+import { User } from "@/types";
 import { getNavItems } from "@/constants/navigation";
 import { getUserInitials, isDepartmentAdmin } from "@/utils/roles";
 
 interface SidebarProps {
-  currentPage: PageKey;
   user: User | null;
   pendingLoanCount: number;
   mobileNav: boolean;
-  onPageChange: (page: PageKey) => void;
   onCloseMobile: () => void;
   onLogout: () => void;
 }
@@ -19,11 +19,13 @@ interface SidebarProps {
 function SidebarUserCard({ user, onLogout }: { user: User; onLogout: () => void }) {
   return (
     <div className="help-card sidebar-user-card">
-      <div className="user-avatar">{getUserInitials(user)}</div>
-      <div className="sidebar-user-copy">
-        <b>{user.full_name}</b>
-        <span>{isDepartmentAdmin(user) ? `Admin ${user.department_name}` : `NIM: ${user.identifier}`}</span>
-      </div>
+      <Link href="/profile" style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0, color: "inherit", textDecoration: "none" }}>
+        <div className="user-avatar">{getUserInitials(user)}</div>
+        <div className="sidebar-user-copy">
+          <b>{user.full_name}</b>
+          <span>{isDepartmentAdmin(user) ? `Admin ${user.department_name}` : `NIM: ${user.identifier}`}</span>
+        </div>
+      </Link>
       <button type="button" className="logout-icon-btn" onClick={onLogout} title="Keluar" aria-label="Keluar">
         <LogOut size={16} />
       </button>
@@ -32,23 +34,22 @@ function SidebarUserCard({ user, onLogout }: { user: User; onLogout: () => void 
 }
 
 export function Sidebar({
-  currentPage,
   user,
   pendingLoanCount,
   mobileNav,
-  onPageChange,
   onCloseMobile,
   onLogout
 }: SidebarProps) {
+  const pathname = usePathname();
   const showApprovalBadge = isDepartmentAdmin(user) && pendingLoanCount > 0;
 
   return (
     <>
       <aside className={`sidebar ${mobileNav ? "sidebar-open" : ""}`}>
         <div className="brand">
-          <div className="brand-mark-box">
+          <Link href="/dashboard" className="brand-mark-box" style={{ textDecoration: "none" }}>
             <img src="/logo-bem-del.png" alt="BEM IT Del" className="brand-logo-img" />
-          </div>
+          </Link>
           <div className="brand-titles">
             <strong>BEM IT Del</strong>
             <span>INVENTORI & PEMINJAMAN</span>
@@ -56,21 +57,21 @@ export function Sidebar({
         </div>
 
         <div className="nav-label">MENU UTAMA</div>
-        {getNavItems(user).map(({ page, label, icon: Icon }) => (
-          <button
-            key={page}
-            type="button"
-            onClick={() => {
-              onPageChange(page);
-              onCloseMobile();
-            }}
-            className={`nav-link ${currentPage === page ? "active" : ""}`}
-          >
-            <Icon size={18} />
-            <span>{label}</span>
-            {page === "Peminjaman" && showApprovalBadge && <b className="nav-count">{pendingLoanCount}</b>}
-          </button>
-        ))}
+        {getNavItems(user).map(({ page, path, label, icon: Icon }) => {
+          const isActive = pathname === path || (path !== "/dashboard" && pathname.startsWith(path));
+          return (
+            <Link
+              key={page}
+              href={path}
+              onClick={onCloseMobile}
+              className={`nav-link ${isActive ? "active" : ""}`}
+            >
+              <Icon size={18} />
+              <span>{label}</span>
+              {page === "Peminjaman" && showApprovalBadge && <b className="nav-count">{pendingLoanCount}</b>}
+            </Link>
+          );
+        })}
 
         <div className="sidebar-bottom">{user && <SidebarUserCard user={user} onLogout={onLogout} />}</div>
       </aside>

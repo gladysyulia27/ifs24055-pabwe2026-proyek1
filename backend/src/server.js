@@ -1,9 +1,13 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import express from 'express';
 import cors from 'cors';
 import db from './db.js';
 import {
   hashPassword,
   verifyPassword,
+  timingSafeCompare,
   createSession,
   deleteSession,
   authMiddleware,
@@ -11,6 +15,19 @@ import {
   requireRole,
   getUserByToken
 } from './auth.js';
+
+// Load .env jika tersedia di backend
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const envPath = path.resolve(__dirname, '../.env');
+
+if (typeof process.loadEnvFile === 'function' && fs.existsSync(envPath)) {
+  try {
+    process.loadEnvFile(envPath);
+  } catch (err) {
+    console.warn('Peringatan: Gagal memuat file .env:', err.message);
+  }
+}
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -42,56 +59,148 @@ app.get('/api/health', (_req, res) => res.json({ status: 'ok', service: 'BEM IT 
 
 // Register
 app.post('/api/auth/register', asyncRoute((req, res) => {
-  const { username, email, password, full_name, identifier, role = 'mahasiswa', department_id, contact_phone = '', admin_secret = '' } = req.body;
-
-  if (!username?.trim() || !email?.trim() || !password || !full_name?.trim() || !identifier?.trim()) {
-    throw bad('Mohon lengkapi seluruh field wajib: Username, Email, Password, Nama Lengkap, dan NIM/NIP.');
+  if (!req.body || typeof req.body !== 'object') {
+    throw bad('Format data registrasi tidak valid (harus berupa JSON object).', 400);
   }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email.trim())) {
-    throw bad('Format alamat email tidak valid.');
+  const {
+    username,
+    email,
+    password,
+    full_name,
+    identifier,
+    role = 'mahasiswa',
+    department_id,
+    contact_phone = '',
+    admin_secret = ''
+  } = req.body;
+
+  // 1. Validasi Keberadaan Field Wajib Dasar
+  if (
+    typeof username !== 'string' || !username.trim() ||
+    typeof email !== 'string' || !email.trim() ||
+    typeof password !== 'string' || !password ||
+    typeof full_name !== 'string' || !full_name.trim() ||
+    typeof identifier !== 'string' || !identifier.trim()
+  ) {
+    throw bad('Mohon lengkapi seluruh field wajib: Username, Email, Password, Nama Lengkap, dan NIM/NIP.', 400);
   }
 
-  if (username.trim().length < 3) {
-    throw bad('Username minimal 3 karakter.');
+  const cleanUsername = username.trim();
+  const cleanEmail = email.trim().toLowerCase();
+  const cleanFullName = full_name.trim();
+  const cleanIdentifier = identifier.trim();
+  const cleanPhone = typeof contact_phone === 'string' ? contact_phone.trim() : '';
+
+  // 2. Validasi Format Username
+  if (cleanUsername.length < 3 || cleanUsername.length > 30) {
+    throw bad('Username harus memiliki panjang antara 3 hingga 30 karakter.', 400);
+  }
+  if (!/^[a-zA-Z0-9_.-]+$/.test(cleanUsername)) {
+    throw bad('Username hanya boleh mengandung huruf, angka, titik (.), strip (-), atau garis bawah (_).', 400);
   }
 
+  // 3. Validasi Format Email
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (cleanEmail.length > 100 || !emailRegex.test(cleanEmail)) {
+    throw bad('Format alamat email tidak valid (contoh: user@del.ac.id atau user@gmail.com).', 400);
+  }
+
+  // 4. Validasi Password
   if (password.length < 6) {
-    throw bad('Password minimal 6 karakter.');
+    throw bad('Password minimal 6 karakter.', 400);
+  }
+  if (password.length > 128) {
+    throw bad('Password maksimal 128 karakter.', 400);
   }
 
-  if (!['mahasiswa', 'admin_departemen'].includes(role)) {
-    throw bad('Peran tidak valid. Pilih mahasiswa atau admin_departemen.');
+  // 5. Validasi Nama Lengkap
+  if (cleanFullName.length < 2 || cleanFullName.length > 100) {
+    throw bad('Nama lengkap harus memiliki panjang antara 2 hingga 100 karakter.', 400);
   }
 
+  // 6. Validasi NIM/NIP (Identifier)
+  if (cleanIdentifier.length < 3 || cleanIdentifier.length > 30) {
+    throw bad('NIM/NIP harus memiliki panjang antara 3 hingga 30 karakter.', 400);
+  }
+  if (!/^[a-zA-Z0-9_\-\.\/ ]+$/.test(cleanIdentifier)) {
+    throw bad('Format NIM/NIP tidak valid (hanya alfanumerik, strip, garis miring, atau titik).', 400);
+  }
+
+  // 7. Validasi Nomor Kontak / WhatsApp (Opsional)
+  if (cleanPhone) {
+    if (cleanPhone.length > 25 || !/^[0-9+()\- ]{7,25}$/.test(cleanPhone)) {
+      throw bad('Format nomor kontak tidak valid (contoh: 08123456789 atau +628123456789).', 400);
+    }
+  }
+
+  // 8. Validasi Peran (Role)
+  const allowedRoles = ['mahasiswa', 'admin_departemen'];
+  if (!allowedRoles.includes(role)) {
+    throw bad(`Peran '${role}' tidak diizinkan untuk registrasi mandiri. Pilihan: mahasiswa atau admin_departemen.`, 400);
+  }
+
+  // 9. Validasi Khusus Berdasarkan Role & Secret Verifikasi (Tanpa Hardcoded Secret)
   let finalDeptId = null;
   if (role === 'admin_departemen') {
     if (!department_id) {
-      throw bad('Admin departemen wajib memilih departemen yang dikelola.');
+      throw bad('Admin departemen wajib memilih departemen yang akan dikelola.', 400);
     }
-    const dept = db.prepare('SELECT id FROM departments WHERE id=?').get(department_id);
-    if (!dept) throw bad('Departemen tidak valid.', 404);
+    const deptIdNum = Number(department_id);
+    if (!Number.isInteger(deptIdNum) || deptIdNum <= 0) {
+      throw bad('ID departemen yang dipilih tidak valid.', 400);
+    }
+
+    const dept = db.prepare('SELECT id, name FROM departments WHERE id=?').get(deptIdNum);
+    if (!dept) {
+      throw bad('Departemen yang dipilih tidak ditemukan dalam sistem.', 404);
+    }
     finalDeptId = dept.id;
 
-    // Optional admin secret verification (default PIN: BEMDEL2026)
-    if (admin_secret && admin_secret !== 'BEMDEL2026') {
-      throw bad('Kode verifikasi admin departemen salah. Hubungi BEM IT Del.', 403);
+    // Membaca kode verifikasi admin dari environment variable (BUKAN hardcoded string)
+    const serverAdminSecret = process.env.ADMIN_REGISTRATION_SECRET || process.env.ADMIN_SECRET;
+    if (!serverAdminSecret) {
+      throw bad('Pendaftaran admin departemen dinonaktifkan: secret verifikasi server belum dikonfigurasi.', 500);
+    }
+
+    const providedSecret = typeof admin_secret === 'string' ? admin_secret.trim() : '';
+    if (!providedSecret) {
+      throw bad('Kode verifikasi admin departemen (admin_secret) wajib diisi.', 400);
+    }
+
+    // Perbandingan string secara timing-safe untuk mencegah timing attacks
+    if (!timingSafeCompare(providedSecret, serverAdminSecret)) {
+      throw bad('Kode verifikasi admin departemen salah. Hubungi pengurus BEM IT Del.', 403);
     }
   }
 
-  // Check unique username and email
-  const existingUser = db.prepare('SELECT id, username, email FROM users WHERE username=? OR email=?').get(username.trim().toLowerCase(), email.trim().toLowerCase());
+  // 10. Pemeriksaan Duplikasi Username & Email
+  const existingUser = db.prepare(`
+    SELECT id, username, email FROM users WHERE LOWER(username) = ? OR LOWER(email) = ?
+  `).get(cleanUsername.toLowerCase(), cleanEmail.toLowerCase());
+
   if (existingUser) {
-    if (existingUser.username === username.trim().toLowerCase()) throw bad('Username sudah digunakan.', 409);
-    throw bad('Email sudah terdaftar.', 409);
+    if (existingUser.username.toLowerCase() === cleanUsername.toLowerCase()) {
+      throw bad('Username sudah digunakan oleh akun lain.', 409);
+    }
+    throw bad('Alamat email sudah terdaftar dalam sistem.', 409);
   }
 
+  // 11. Simpan Pengguna Baru
   const password_hash = hashPassword(password);
   const result = db.prepare(`
     INSERT INTO users (username, email, password_hash, full_name, identifier, role, department_id, contact_phone)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(username.trim().toLowerCase(), email.trim().toLowerCase(), password_hash, full_name.trim(), identifier.trim(), role, finalDeptId, contact_phone.trim());
+  `).run(
+    cleanUsername.toLowerCase(),
+    cleanEmail.toLowerCase(),
+    password_hash,
+    cleanFullName,
+    cleanIdentifier,
+    role,
+    finalDeptId,
+    cleanPhone
+  );
 
   const session = createSession(result.lastInsertRowid);
   res.status(201).json({
@@ -514,4 +623,13 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: err.message || 'Kesalahan server' });
 });
 
-app.listen(PORT, () => console.log(`Inventory API listening at http://localhost:${PORT}`));
+export { app };
+
+const isTest =
+  process.env.NODE_ENV === 'test' ||
+  process.execArgv.some((arg) => arg.includes('test')) ||
+  process.argv.some((arg) => typeof arg === 'string' && arg.includes('test'));
+
+if (!isTest) {
+  app.listen(PORT, () => console.log(`Inventory API listening at http://localhost:${PORT}`));
+}

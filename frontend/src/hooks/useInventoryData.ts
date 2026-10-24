@@ -22,18 +22,28 @@ export function useInventoryData(user: User | null) {
     setLoading(true);
     setError("");
     try {
-      const [depts, inv, lns, cal, notifs] = await Promise.all([
+      const results = await Promise.allSettled([
         departmentsApi.getAll(),
         inventoryApi.getAll(),
         loansApi.getAll(),
         loansApi.getCalendar(),
         notificationsApi.getNotifications()
       ]);
-      setDepartments(depts);
-      setItems(inv);
-      setLoans(lns);
-      setCalendar(cal);
-      setNotifications(notifs);
+
+      const [deptRes, invRes, loanRes, calRes, notifRes] = results;
+
+      if (deptRes.status === "fulfilled") setDepartments(deptRes.value);
+      if (invRes.status === "fulfilled") setItems(invRes.value);
+      if (loanRes.status === "fulfilled") setLoans(loanRes.value);
+      if (calRes.status === "fulfilled") setCalendar(calRes.value);
+      if (notifRes.status === "fulfilled") setNotifications(notifRes.value);
+
+      // Jika inventori dan departemen gagal total, tampilkan pesan error
+      if (invRes.status === "rejected" && deptRes.status === "rejected") {
+        setError(getErrorMessage(invRes.reason, "Gagal memuat data inventori dari server backend."));
+      } else {
+        setError("");
+      }
     } catch (err) {
       setError(getErrorMessage(err, "Gagal memuat data dari server backend."));
     } finally {

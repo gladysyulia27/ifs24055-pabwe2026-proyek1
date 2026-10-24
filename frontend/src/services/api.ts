@@ -17,18 +17,23 @@ const TOKEN_KEY = "bem_inventory_token";
 
 export function getStoredToken(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem(TOKEN_KEY);
+  const local = localStorage.getItem(TOKEN_KEY);
+  if (local) return local;
+  const match = document.cookie.match(new RegExp(`(^|;\\s*)${TOKEN_KEY}=([^;]+)`));
+  return match ? decodeURIComponent(match[2]) : null;
 }
 
 export function setStoredToken(token: string): void {
   if (typeof window !== "undefined") {
     localStorage.setItem(TOKEN_KEY, token);
+    document.cookie = `${TOKEN_KEY}=${encodeURIComponent(token)}; path=/; max-age=604800; SameSite=Lax`;
   }
 }
 
 export function removeStoredToken(): void {
   if (typeof window !== "undefined") {
     localStorage.removeItem(TOKEN_KEY);
+    document.cookie = `${TOKEN_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
   }
 }
 
@@ -50,6 +55,28 @@ function jsonBody(body: unknown): RequestInit {
   return { body: JSON.stringify(body) };
 }
 
+export class ApiError extends Error {
+  status: number;
+  data: unknown;
+  isNetworkError: boolean;
+  isTimeout: boolean;
+
+  constructor(
+    message: string,
+    status = 0,
+    data?: unknown,
+    isNetworkError = false,
+    isTimeout = false
+  ) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.data = data;
+    this.isNetworkError = isNetworkError;
+    this.isTimeout = isTimeout;
+  }
+}
+
 export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const token = getStoredToken();
   const headers: Record<string, string> = {
@@ -58,14 +85,109 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
     ...((init?.headers as Record<string, string>) || {})
   };
 
-  const response = await fetch(`${API_URL}${path}`, { ...init, headers });
-  const data = await response.json().catch(() => ({}));
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-  if (!response.ok) {
-    throw new Error(data.error || "Terjadi kesalahan saat memproses permintaan.");
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      ...init,
+      headers,
+      signal: init?.signal || controller.signal
+    });
+  } catch (err: unknown) {
+    clearTimeout(timeoutId);
+    if (err instanceof Error && err.name === "AbortError") {
+      throw new ApiError(
+        "Permintaan melebihi batas waktu (15 detik). Silakan periksa koneksi atau coba beberapa saat lagi.",
+        408,
+        null,
+        false,
+        true
+      );
+    }
+    throw new ApiError(
+      "Tidak dapat terhubung ke server backend API. Pastikan server backend sedang aktif atau periksa koneksi jaringan Anda.",
+      0,
+      null,
+      true
+    );
+  } finally {
+    clearTimeout(timeoutId);
   }
 
-  return data as T;
+  // Parse response body secara aman
+  let data: Record<string, unknown> | null = null;
+  const contentType = response.headers.get("content-type") || "";
+  if (contentType.includes("application/json")) {
+    try {
+      data = (await response.json()) as Record<string, unknown>;
+    } catch {
+      data = null;
+    }
+  } else {
+    try {
+      const text = await response.text();
+      data = text ? { message: text } : null;
+    } catch {
+      data = null;
+    }
+  }
+
+  // Tangani 401 Unauthorized (token kedaluwarsa atau sesi tidak valid)
+  if (response.status === 401) {
+    removeStoredToken();
+    const msg =
+      typeof data?.error === "string"
+        ? data.error
+        : typeof data?.message === "string"
+        ? data.message
+        : "Sesi login Anda telah berakhir. Silakan masuk kembali.";
+    throw new ApiError(msg, 401, data);
+  }
+
+  if (!response.ok) {
+    let errorMsg =
+      typeof data?.error === "string"
+        ? data.error
+        : typeof data?.message === "string"
+        ? data.message
+        : "";
+
+    if (!errorMsg) {
+      switch (response.status) {
+        case 400:
+          errorMsg = "Permintaan data tidak valid (Bad Request).";
+          break;
+        case 403:
+          errorMsg = "Akses ditolak. Anda tidak memiliki izin untuk melakukan tindakan ini.";
+          break;
+        case 404:
+          errorMsg = "Data atau endpoint yang diminta tidak ditemukan dalam sistem.";
+          break;
+        case 409:
+          errorMsg = "Terjadi konflik data pada server.";
+          break;
+        case 422:
+          errorMsg = "Data yang dikirimkan tidak memenuhi syarat validasi.";
+          break;
+        case 500:
+          errorMsg = "Terjadi gangguan internal pada server backend.";
+          break;
+        case 502:
+        case 503:
+        case 504:
+          errorMsg = "Layanan backend sedang tidak tersedia atau dalam pemeliharaan.";
+          break;
+        default:
+          errorMsg = `Permintaan gagal dengan status ${response.status} (${response.statusText || "Error"}).`;
+      }
+    }
+
+    throw new ApiError(errorMsg, response.status, data);
+  }
+
+  return (data as unknown) as T;
 }
 
 interface AuthResponse {
