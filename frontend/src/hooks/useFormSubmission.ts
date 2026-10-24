@@ -35,8 +35,11 @@ export function useFormSubmission({ onClose, onErrorToast }: Options) {
     try {
       await action();
       onClose();
-    } catch {
-      // Keep the modal open so the user can correct the input.
+    } catch (err: unknown) {
+      // Capture error message to display in modal error feedback and allow user to correct input
+      const msg = err instanceof Error ? err.message : "Terjadi kesalahan saat memproses formulir.";
+      setError(msg);
+      onErrorToast(msg);
     } finally {
       setLoading(false);
     }
