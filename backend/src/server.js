@@ -45,6 +45,15 @@ app.post('/api/auth/register', asyncRoute((req, res) => {
     throw bad('Mohon lengkapi seluruh field wajib: Username, Email, Password, Nama Lengkap, dan NIM/NIP.');
   }
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email.trim())) {
+    throw bad('Format alamat email tidak valid.');
+  }
+
+  if (username.trim().length < 3) {
+    throw bad('Username minimal 3 karakter.');
+  }
+
   if (password.length < 6) {
     throw bad('Password minimal 6 karakter.');
   }
