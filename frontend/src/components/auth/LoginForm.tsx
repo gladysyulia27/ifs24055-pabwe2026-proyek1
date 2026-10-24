@@ -13,18 +13,26 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ values, loading, onChange, onSubmit }: LoginFormProps) {
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onSubmit(values);
+    const form = e.currentTarget;
+    const usernameInput = form.elements.namedItem("username") as HTMLInputElement | null;
+    const passwordInput = form.elements.namedItem("password") as HTMLInputElement | null;
+
+    const username_or_email = usernameInput?.value || values.username_or_email;
+    const password = passwordInput?.value || values.password;
+
+    onSubmit({ username_or_email, password });
   };
 
   return (
-    <form className="form-stack" onSubmit={handleSubmit}>
+    <form className="form-stack" onSubmit={handleSubmit} method="POST">
       <Field label="Username atau Email *">
         <input
           id="username"
           name="username"
           required
+          autoComplete="username"
           value={values.username_or_email}
           onChange={(e) => onChange({ ...values, username_or_email: e.target.value })}
           placeholder="Contoh: andi_del atau andi@del.ac.id"

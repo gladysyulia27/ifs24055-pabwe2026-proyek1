@@ -93,9 +93,17 @@ export default function ProtectedRouteLayout({ children }: { children: React.Rea
   const pathname = usePathname();
 
   useEffect(() => {
+    // Only redirect if auth checking has completed and there is definitively no token/session
     if (!authChecking && !user) {
-      const redirectQuery = pathname && pathname !== "/" ? `?redirect=${encodeURIComponent(pathname)}` : "";
-      router.replace(`/login${redirectQuery}`);
+      const hasToken = typeof window !== "undefined" && (
+        document.cookie.includes("token") ||
+        Boolean(localStorage.getItem("bem_inventory_token")) ||
+        Boolean(localStorage.getItem("token"))
+      );
+      if (!hasToken) {
+        const redirectQuery = pathname && pathname !== "/" ? `?redirect=${encodeURIComponent(pathname)}` : "";
+        router.replace(`/login${redirectQuery}`);
+      }
     }
   }, [user, authChecking, router, pathname]);
 
