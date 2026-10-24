@@ -52,6 +52,44 @@ export function getStoredToken(): string | null {
   return inMemoryToken;
 }
 
+export function getStoredUser(): User | null {
+  if (typeof window === "undefined") return null;
+  // 1. Try localStorage
+  try {
+    const raw = localStorage.getItem(USER_KEY);
+    if (raw) return JSON.parse(raw) as User;
+  } catch {
+    // ignore
+  }
+  // 2. Try cookie
+  try {
+    const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${USER_KEY}=([^;]+)`));
+    if (match) {
+      return JSON.parse(decodeURIComponent(match[1])) as User;
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
+export function setStoredUser(user: User): void {
+  if (typeof window !== "undefined") {
+    const isSecure = window.location.protocol === "https:" ? "; Secure" : "";
+    const serialized = encodeURIComponent(JSON.stringify(user));
+    try {
+      document.cookie = `${USER_KEY}=${serialized}; path=/; max-age=604800; SameSite=Lax${isSecure}`;
+    } catch {
+      // ignore
+    }
+    try {
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+    } catch {
+      // ignore
+    }
+  }
+}
+
 export function setStoredToken(token: string): void {
   inMemoryToken = token;
   if (typeof window !== "undefined") {
@@ -86,6 +124,11 @@ export function removeStoredToken(): void {
       } catch {
         // ignore
       }
+    }
+    try {
+      document.cookie = `${USER_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+    } catch {
+      // ignore
     }
     try {
       localStorage.removeItem(USER_KEY);

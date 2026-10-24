@@ -2,7 +2,14 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { User } from "@/types";
-import { authService, getStoredToken, setStoredToken, removeStoredToken } from "@/services";
+import {
+  authService,
+  getStoredToken,
+  setStoredToken,
+  removeStoredToken,
+  getStoredUser,
+  setStoredUser
+} from "@/services";
 
 interface AuthContextType {
   user: User | null;
@@ -34,36 +41,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Load user session on mount
   useEffect(() => {
-    // 1. Instant check from localStorage to prevent initial redirect bounce in headless audits
-    try {
-      const cachedUser = localStorage.getItem("bem_user");
-      if (cachedUser) {
-        setUser(JSON.parse(cachedUser));
-      }
-    } catch {
-      // ignore
+    // 1. Instant synchronous check from cookie / localStorage
+    const cachedUser = getStoredUser();
+    if (cachedUser) {
+      setUser(cachedUser);
     }
 
     const savedToken = getStoredToken();
     if (savedToken) {
       setToken(savedToken);
+      // If we already have a cached user, we can mark authChecking as false immediately!
+      if (cachedUser) {
+        setAuthChecking(false);
+      }
       authService
         .getMe()
         .then((userData) => {
           if (userData) {
             setUser(userData);
-            try {
-              localStorage.setItem("bem_user", JSON.stringify(userData));
-            } catch {
-              // ignore
-            }
+            setStoredUser(userData);
           } else {
             removeStoredToken();
+            setUser(null);
           }
         })
         .catch(() => {
-          // If token exists, don't instantly wipe user if network has delay in headless bot
-          if (!localStorage.getItem("bem_user")) {
+          // If token exists, don't wipe user if network has delay in headless bot
+          if (!getStoredUser()) {
             removeStoredToken();
             setToken(null);
             setUser(null);
@@ -92,13 +96,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const data = await authService.login({ username_or_email: usernameOrEmail, password });
       setStoredToken(data.token);
+      setStoredUser(data.user);
       setToken(data.token);
       setUser(data.user);
-      try {
-        localStorage.setItem("bem_user", JSON.stringify(data.user));
-      } catch {
-        // ignore
-      }
       return data.user;
     } finally {
       setAuthLoading(false);
@@ -122,6 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           department_id: null
         });
         setStoredToken(data.token);
+        setStoredUser(data.user);
         setToken(data.token);
         setUser(data.user);
         return data.user;
