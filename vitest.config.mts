@@ -15,18 +15,10 @@ export default defineConfig({
       reportsDirectory: "./coverage",
       include: [
         "src/utils/**",
-        "src/services/authService.ts",
-        "src/services/errorHandler.ts",
-        "src/services/inventoryService.ts",
-        "src/services/loanService.ts",
-        "src/services/notificationService.ts",
-        "src/hooks/useActionRunner.ts",
-        "src/hooks/useAuth.ts",
-        "src/hooks/useCalendarGrid.ts",
-        "src/hooks/useDashboardStats.ts",
-        "src/hooks/useFormSubmission.ts",
-        "src/hooks/useInventoryFilter.ts",
-        "src/hooks/useItemStock.ts"
+        "src/services/**",
+        "src/hooks/**",
+        "src/components/**",
+        "src/context/**"
       ]
     }
   },
