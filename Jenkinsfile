@@ -214,35 +214,22 @@ pipeline {
 
                     zip -r latest-app.zip . \
                         -x "node_modules/*" \
-                        -x "*/node_modules/*" \
                         -x ".git/*" \
-                        -x "*/.git/*" \
                         -x ".env" \
                         -x ".env.*" \
                         -x "coverage/*" \
-                        -x "*/coverage/*" \
                         -x ".next/*" \
-                        -x "*/.next/*" \
                         -x "out/*" \
-                        -x "*/out/*" \
                         -x ".nuxt/*" \
-                        -x "*/.nuxt/*" \
                         -x ".output/*" \
-                        -x "*/.output/*" \
                         -x ".svelte-kit/*" \
-                        -x "*/.svelte-kit/*" \
                         -x ".angular/*" \
-                        -x "*/.angular/*" \
                         -x "dist/*" \
-                        -x "*/dist/*" \
                         -x "build/*" \
-                        -x "*/build/*" \
                         -x ".trivy-cache/*" \
-                        -x "*/.trivy-cache/*" \
                         -x "latest-app.zip" \
                         -x "trivy-results.sarif" \
-                        -x ".docs/*" \
-                        -x "*/.docs/*"
+                        -x ".docs/*"
 
                     echo "=== Application Package Created ==="
 
