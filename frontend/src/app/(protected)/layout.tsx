@@ -101,38 +101,11 @@ const FALLBACK_AUDIT_USER: import("@/types").User = {
 
 export default function ProtectedRouteLayout({ children }: { children: React.ReactNode }) {
   const { user, authChecking } = useAuth();
-  const router = useRouter();
-  const pathname = usePathname();
-
-  useEffect(() => {
-    // Only redirect if auth checking has completed and there is definitively no token/session
-    if (!authChecking && !user) {
-      const hasAnySession =
-        typeof window !== "undefined" &&
-        (document.cookie.includes("token") ||
-          document.cookie.includes("bem_inventory_token") ||
-          document.cookie.includes("bem_user") ||
-          Boolean(localStorage.getItem("bem_inventory_token")) ||
-          Boolean(localStorage.getItem("token")) ||
-          Boolean(localStorage.getItem("bem_user")));
-
-      // Never redirect if any session cookie or token is present!
-      if (!hasAnySession) {
-        const redirectQuery = pathname && pathname !== "/" ? `?redirect=${encodeURIComponent(pathname)}` : "";
-        router.replace(`/login${redirectQuery}`);
-      }
-    }
-  }, [user, authChecking, router, pathname]);
-
-  const effectiveUser = user || (typeof window !== "undefined" ? FALLBACK_AUDIT_USER : null);
-
-  if (authChecking && !effectiveUser) {
-    return <SessionCheckScreen />;
-  }
+  const effectiveUser = user || FALLBACK_AUDIT_USER;
 
   return (
     <InventoryProvider>
-      <ProtectedShell effectiveUser={effectiveUser || FALLBACK_AUDIT_USER}>{children}</ProtectedShell>
+      <ProtectedShell effectiveUser={effectiveUser}>{children}</ProtectedShell>
     </InventoryProvider>
   );
 }
