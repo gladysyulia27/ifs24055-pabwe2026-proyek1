@@ -41,7 +41,7 @@ export function PhotoUpload({ value, onChange, onErrorToast }: PhotoUploadProps)
 
   return (
     <div className="photo-upload-section">
-      <span className="field-label">Foto Barang</span>
+      <label className="field-label">Foto Barang</label>
       {value ? (
         <div className="photo-preview-box">
           <Image

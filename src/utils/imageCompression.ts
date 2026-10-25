@@ -7,7 +7,7 @@ function readAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(reader.error ?? new Error("Gagal membaca file gambar"));
+    reader.onerror = () => reject(new Error("Gagal membaca file gambar"));
     reader.readAsDataURL(file);
   });
 }
