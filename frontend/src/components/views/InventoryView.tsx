@@ -67,7 +67,13 @@ export function InventoryView({
           />
         </div>
         <div className="filter-dept-wrap">
-          <select value={departmentFilter} onChange={(e) => onDepartmentFilterChange(e.target.value)}>
+          <select
+            id="departmentFilter"
+            name="departmentFilter"
+            aria-label="Filter berdasarkan departemen"
+            value={departmentFilter}
+            onChange={(e) => onDepartmentFilterChange(e.target.value)}
+          >
             <option>Semua Departemen</option>
             {departments.map((department) => (
               <option key={department.id} value={department.name}>
