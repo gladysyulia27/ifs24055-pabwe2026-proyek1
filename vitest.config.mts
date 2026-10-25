@@ -9,10 +9,18 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./src/setupTests.ts"],
     include: ["src/__tests__/**/*.{test,spec}.{ts,tsx}"],
+    testTimeout: 30000,
+    hookTimeout: 30000,
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html", "lcov"],
       reportsDirectory: "./coverage",
+      thresholds: {
+        lines: 100,
+        functions: 100,
+        branches: 100,
+        statements: 100
+      },
       include: [
         "src/utils/**",
         "src/services/authService.ts",

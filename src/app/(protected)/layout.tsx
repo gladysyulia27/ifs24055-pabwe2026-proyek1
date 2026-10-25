@@ -27,6 +27,9 @@ function ProtectedShell({ children, effectiveUser }: { children: React.ReactNode
       variant: "danger",
       onConfirm: async () => {
         await logout();
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
+        }
       }
     });
   };
@@ -101,6 +104,24 @@ export const FALLBACK_AUDIT_USER: import("@/types").User = {
 
 export default function ProtectedRouteLayout({ children }: { children: React.ReactNode }) {
   const { user, authChecking } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (!authChecking && !user && typeof window !== "undefined") {
+      const hasToken =
+        document.cookie.includes("token") ||
+        document.cookie.includes("bem_inventory_token") ||
+        Boolean(localStorage.getItem("bem_inventory_token")) ||
+        Boolean(localStorage.getItem("token"));
+
+      if (!hasToken) {
+        const redirectQuery = pathname && pathname !== "/" ? `?redirect=${encodeURIComponent(pathname)}` : "";
+        router.replace(`/login${redirectQuery}`);
+      }
+    }
+  }, [user, authChecking, router, pathname]);
+
   const effectiveUser = user || FALLBACK_AUDIT_USER;
 
   return (

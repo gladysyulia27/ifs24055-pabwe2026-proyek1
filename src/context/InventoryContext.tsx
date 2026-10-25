@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useInventoryData } from "@/hooks/useInventoryData";
 import { useToast } from "@/hooks/useToast";
 import { useActionRunner } from "@/hooks/useActionRunner";
-import { inventoryApi, loansApi } from "@/services/api";
+import { inventoryApi, loansApi, getStoredUser } from "@/services/api";
 import { isDepartmentAdmin } from "@/utils/roles";
 
 import { Toast } from "@/components/common/Toast";
@@ -58,9 +58,10 @@ const InventoryContext = createContext<InventoryContextType | undefined>(undefin
 
 export function InventoryProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
+  const activeUser = user || (typeof window !== "undefined" ? getStoredUser() : null);
   const { toast, showToast, hideToast } = useToast();
   const { departments, items, loans, calendar, notifications, loading, error, refresh } =
-    useInventoryData(user);
+    useInventoryData(user || activeUser);
 
   const runAction = useActionRunner(refresh, showToast);
 
@@ -95,7 +96,8 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
   };
 
   const openBorrowModal = (item: Item) => {
-    if (isDepartmentAdmin(user)) {
+    const current = user || activeUser;
+    if (isDepartmentAdmin(current)) {
       showToast("Akun Admin Departemen tidak dapat meminjam inventori. Gunakan akun Mahasiswa.");
       return;
     }
@@ -140,7 +142,10 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
   };
 
   const handleLoanAction = (loan: Loan, action: LoanAction) => {
-    const approvedBy = user ? `${user.full_name} (${user.department_name})` : undefined;
+    const current = user || activeUser;
+    const approvedBy = current
+      ? `${current.full_name}${current.department_name ? ` (${current.department_name})` : ""}`
+      : "Penanggung Jawab Departemen";
     const successMessages: Record<LoanAction, string> = {
       approve: "Peminjaman berhasil disetujui",
       reject: "Pengajuan peminjaman ditolak",
@@ -153,6 +158,20 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
         fallbackError: "Aksi peminjaman gagal diproses."
       });
     };
+
+    if (action === "approve") {
+      openConfirm({
+        title: "Setujui Peminjaman Barang",
+        message: `Apakah Anda yakin ingin menyetujui peminjaman "${loan.inventory_name}"?`,
+        highlightText: `Peminjam: ${loan.borrower_name} (${loan.organization}) · ${loan.quantity} unit`,
+        description: `Pengajuan ini akan disetujui dan peminjam dapat mengambil barang inventori sesuai jadwal (${loan.start_date} s/d ${loan.due_date}).`,
+        confirmText: "Ya, Setujui",
+        cancelText: "Batal",
+        variant: "info",
+        onConfirm: executeAction
+      });
+      return;
+    }
 
     if (action === "reject") {
       openConfirm({
@@ -261,7 +280,7 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
       {showLoanModal && selectedItemForLoan && (
         <LoanModal
           item={selectedItemForLoan}
-          currentUser={user}
+          currentUser={user || activeUser}
           onClose={() => {
             setShowLoanModal(false);
             setSelectedItemForLoan(null);
@@ -271,10 +290,10 @@ export function InventoryProvider({ children }: { children: React.ReactNode }) {
         />
       )}
 
-      {showItemModal && isDepartmentAdmin(user) && user && (
+      {showItemModal && isDepartmentAdmin(user || activeUser) && (user || activeUser) && (
         <ItemModal
           editingItem={editingItem}
-          currentUser={user}
+          currentUser={(user || activeUser)!}
           onClose={() => {
             setShowItemModal(false);
             setEditingItem(null);

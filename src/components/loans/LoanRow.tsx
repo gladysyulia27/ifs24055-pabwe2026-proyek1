@@ -14,7 +14,16 @@ interface LoanRowProps {
   onOpenReturn?: (loan: Loan) => void;
 }
 
-function AdminActions({ loan, onAction }: Pick<LoanRowProps, "loan" | "onAction">) {
+function AdminActions({ loan, currentUser, onAction }: Pick<LoanRowProps, "loan" | "currentUser" | "onAction">) {
+  const isOwnDepartment =
+    !currentUser?.department_name ||
+    !loan.department_name ||
+    currentUser.department_name.toUpperCase() === loan.department_name.toUpperCase();
+
+  if (!isOwnDepartment) {
+    return <span className="loan-note-muted">Departemen {loan.department_name}</span>;
+  }
+
   if (loan.status === "Menunggu Approval") {
     return (
       <>
@@ -67,7 +76,16 @@ function AdminActions({ loan, onAction }: Pick<LoanRowProps, "loan" | "onAction"
   return null;
 }
 
-function StudentActions({ loan, onOpenReturn }: Pick<LoanRowProps, "loan" | "onOpenReturn">) {
+function StudentActions({ loan, currentUser, onOpenReturn }: Pick<LoanRowProps, "loan" | "currentUser" | "onOpenReturn">) {
+  const isBorrower =
+    !currentUser?.identifier ||
+    !loan.borrower_id ||
+    currentUser.identifier === loan.borrower_id;
+
+  if (!isBorrower) {
+    return null;
+  }
+
   if (loan.status === "Disetujui") {
     return (
       <button
@@ -123,8 +141,12 @@ export function LoanRow({ loan, currentUser, onAction, onOpenReturn }: LoanRowPr
       </td>
       <td>
         <div className="row-actions">
-          {isDepartmentAdmin(currentUser) && <AdminActions loan={loan} onAction={onAction} />}
-          {isStudent(currentUser) && <StudentActions loan={loan} onOpenReturn={onOpenReturn} />}
+          {isDepartmentAdmin(currentUser) && (
+            <AdminActions loan={loan} currentUser={currentUser} onAction={onAction} />
+          )}
+          {isStudent(currentUser) && (
+            <StudentActions loan={loan} currentUser={currentUser} onOpenReturn={onOpenReturn} />
+          )}
           <StatusNote status={loan.status} />
         </div>
       </td>
