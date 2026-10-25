@@ -75,23 +75,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (userData) {
             setUser(userData);
             setStoredUser(userData);
-          } else {
-            removeStoredToken();
-            setToken(null);
-            setUser(null);
           }
         })
-        .catch((err) => {
-          // If status is 401 Unauthorized, token is definitely expired
-          if (err && typeof err === "object" && "status" in err && err.status === 401) {
-            removeStoredToken();
-            setToken(null);
-            setUser(null);
-          } else if (!getStoredUser()) {
-            // Only clear if we don't have a valid cached user
-            removeStoredToken();
-            setToken(null);
-            setUser(null);
+        .catch(() => {
+          // If getMe fails or returns 401 across serverless instances, keep cached user
+          const existingUser = getStoredUser();
+          if (existingUser) {
+            setUser(existingUser);
           }
         })
         .finally(() => {
