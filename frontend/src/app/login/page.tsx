@@ -46,7 +46,11 @@ function LoginContent() {
 
   useEffect(() => {
     if (!authChecking && user) {
-      router.replace(redirectPath);
+      if (typeof window !== "undefined") {
+        window.location.href = redirectPath;
+      } else {
+        router.replace(redirectPath);
+      }
     }
   }, [user, authChecking, router, redirectPath]);
 
@@ -66,7 +70,11 @@ function LoginContent() {
     try {
       const loggedUser = await login(values.username_or_email, values.password);
       showToast(`Selamat datang, ${loggedUser.full_name}!`);
-      router.replace(redirectPath);
+      if (typeof window !== "undefined") {
+        window.location.href = redirectPath;
+      } else {
+        router.replace(redirectPath);
+      }
     } catch (err) {
       const msg = getErrorMessage(err, "Gagal masuk ke sistem.");
       setErrorMsg(msg);

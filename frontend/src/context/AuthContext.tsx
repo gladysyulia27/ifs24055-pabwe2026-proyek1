@@ -2,7 +2,14 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { User } from "@/types";
-import { authService, getStoredToken, setStoredToken, removeStoredToken } from "@/services";
+import {
+  authService,
+  getStoredToken,
+  setStoredToken,
+  removeStoredToken,
+  getStoredUser,
+  setStoredUser
+} from "@/services";
 
 interface AuthContextType {
   user: User | null;
@@ -26,27 +33,66 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [authChecking, setAuthChecking] = useState<boolean>(true);
+  const [user, setUser] = useState<User | null>(() => {
+    if (typeof window !== "undefined") {
+      return getStoredUser();
+    }
+    return null;
+  });
+  const [token, setToken] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return getStoredToken();
+    }
+    return null;
+  });
+  const [authChecking, setAuthChecking] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      const u = getStoredUser();
+      const t = getStoredToken();
+      if (u && t) return false;
+    }
+    return true;
+  });
   const [authLoading, setAuthLoading] = useState<boolean>(false);
   const [demoAccounts, setDemoAccounts] = useState<User[]>([]);
 
   // Load user session on mount
   useEffect(() => {
+    const cachedUser = getStoredUser();
+    if (cachedUser) {
+      setUser(cachedUser);
+    }
+
     const savedToken = getStoredToken();
     if (savedToken) {
       setToken(savedToken);
+      if (cachedUser) {
+        setAuthChecking(false);
+      }
       authService
         .getMe()
         .then((userData) => {
-          if (userData) setUser(userData);
-          else removeStoredToken();
+          if (userData) {
+            setUser(userData);
+            setStoredUser(userData);
+          } else {
+            removeStoredToken();
+            setToken(null);
+            setUser(null);
+          }
         })
-        .catch(() => {
-          removeStoredToken();
-          setToken(null);
-          setUser(null);
+        .catch((err) => {
+          // If status is 401 Unauthorized, token is definitely expired
+          if (err && typeof err === "object" && "status" in err && err.status === 401) {
+            removeStoredToken();
+            setToken(null);
+            setUser(null);
+          } else if (!getStoredUser()) {
+            // Only clear if we don't have a valid cached user
+            removeStoredToken();
+            setToken(null);
+            setUser(null);
+          }
         })
         .finally(() => {
           setAuthChecking(false);
@@ -69,6 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const data = await authService.login({ username_or_email: usernameOrEmail, password });
       setStoredToken(data.token);
+      setStoredUser(data.user);
       setToken(data.token);
       setUser(data.user);
       return data.user;

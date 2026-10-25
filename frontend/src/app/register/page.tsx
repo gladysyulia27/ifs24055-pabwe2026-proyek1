@@ -40,11 +40,19 @@ export default function RegisterPage() {
 
     setErrorMsg(null);
     try {
-      await register(values);
+      const trimmedValues = {
+        ...values,
+        username: values.username.trim(),
+        email: values.email.trim(),
+        identifier: values.identifier.trim(),
+        full_name: values.full_name.trim(),
+        contact_phone: values.contact_phone ? values.contact_phone.trim() : undefined
+      };
+      await register(trimmedValues);
       // Alur: register -> login -> dashboard
       const queryParams = new URLSearchParams({
         registered: "true",
-        username: values.username
+        username: trimmedValues.username
       }).toString();
       router.push(`/login?${queryParams}`);
     } catch (err) {
