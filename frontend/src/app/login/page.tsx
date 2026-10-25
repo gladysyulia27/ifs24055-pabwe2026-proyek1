@@ -70,10 +70,9 @@ function LoginContent() {
     try {
       const loggedUser = await login(values.username_or_email, values.password);
       showToast(`Selamat datang, ${loggedUser.full_name}!`);
+      router.push(redirectPath);
       if (typeof window !== "undefined") {
-        window.location.href = redirectPath;
-      } else {
-        router.replace(redirectPath);
+        window.location.assign(redirectPath);
       }
     } catch (err) {
       const msg = getErrorMessage(err, "Gagal masuk ke sistem.");
