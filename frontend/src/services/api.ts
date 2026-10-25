@@ -75,10 +75,10 @@ export function getStoredUser(): User | null {
 
 export function setStoredUser(user: User): void {
   if (typeof window !== "undefined") {
-    const isSecure = window.location.protocol === "https:" ? "; Secure" : "";
     const serialized = encodeURIComponent(JSON.stringify(user));
     try {
-      document.cookie = `${USER_KEY}=${serialized}; path=/; max-age=604800; SameSite=Lax${isSecure}`;
+      document.cookie = `${USER_KEY}=${serialized}; path=/; max-age=604800`;
+      document.cookie = `${USER_KEY}=${serialized}; path=/; max-age=604800; SameSite=Lax`;
     } catch {
       // ignore
     }
@@ -93,11 +93,11 @@ export function setStoredUser(user: User): void {
 export function setStoredToken(token: string): void {
   inMemoryToken = token;
   if (typeof window !== "undefined") {
-    const isSecure = window.location.protocol === "https:" ? "; Secure" : "";
-    // Set across standard cookie keys
+    const encoded = encodeURIComponent(token);
     for (const key of TOKEN_KEYS) {
       try {
-        document.cookie = `${key}=${encodeURIComponent(token)}; path=/; max-age=604800; SameSite=Lax${isSecure}`;
+        document.cookie = `${key}=${encoded}; path=/; max-age=604800`;
+        document.cookie = `${key}=${encoded}; path=/; max-age=604800; SameSite=Lax`;
       } catch {
         // ignore
       }

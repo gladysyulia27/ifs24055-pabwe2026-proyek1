@@ -97,7 +97,7 @@ export default function ProtectedRouteLayout({ children }: { children: React.Rea
   useEffect(() => {
     // Only redirect if auth checking has completed and there is definitively no token/session
     if (!authChecking && !user) {
-      const hasToken =
+      const hasAnySession =
         typeof window !== "undefined" &&
         (document.cookie.includes("token") ||
           document.cookie.includes("bem_inventory_token") ||
@@ -105,7 +105,9 @@ export default function ProtectedRouteLayout({ children }: { children: React.Rea
           Boolean(localStorage.getItem("bem_inventory_token")) ||
           Boolean(localStorage.getItem("token")) ||
           Boolean(localStorage.getItem("bem_user")));
-      if (!hasToken) {
+
+      // Never redirect if any session cookie or token is present!
+      if (!hasAnySession) {
         const redirectQuery = pathname && pathname !== "/" ? `?redirect=${encodeURIComponent(pathname)}` : "";
         router.replace(`/login${redirectQuery}`);
       }
