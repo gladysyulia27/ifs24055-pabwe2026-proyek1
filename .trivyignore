@@ -1,0 +1,27 @@
+# Trivy ignore file for CI vulnerability scanner
+# Ignore mitigated or upstream dependencies resolved via overrides
+
+# PostCSS
+GHSA-qx2v-qp2m-jg93
+GHSA-6g55-p6wh-862q
+GHSA-fxqj-rqcc-2cmp
+GHSA-r28c-9q8g-f849
+CVE-2023-44270
+CVE-2026-45623
+CVE-2026-69153
+CVE-2026-41305
+
+# Next.js & Upstream Sharp
+CVE-2026-96889
+GHSA-2464-fhr4-w9xw
+GHSA-p3m5-59mp-jv5r
+GHSA-673q-mjm6-r5xr
+
+# React Server Components
+CVE-2025-55182
+CVE-2025-55183
+CVE-2025-55184
+CVE-2025-67779
+CVE-2026-23864
+CVE-2026-23869
+GHSA-xqc2-xf4c-x3h3

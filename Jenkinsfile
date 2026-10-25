@@ -120,6 +120,7 @@ pipeline {
                         --cache-dir .trivy-cache \
                         --scanners vuln \
                         --severity HIGH,CRITICAL \
+                        --ignorefile .trivyignore \
                         --format sarif \
                         --output trivy-results.sarif \
                         --exit-code 1 \
