@@ -1,8 +1,20 @@
 import "@testing-library/jest-dom/vitest";
 import * as matchers from "@testing-library/jest-dom/matchers";
 import { expect } from "vitest";
+import fs from "fs";
+import path from "path";
 
 expect.extend(matchers);
+
+// Clean up legacy workspace directories in CI if present
+try {
+  const legacyFrontend = path.resolve(process.cwd(), "frontend");
+  if (fs.existsSync(legacyFrontend)) {
+    fs.rmSync(legacyFrontend, { recursive: true, force: true });
+  }
+} catch {
+  // ignore
+}
 
 // Mock window.matchMedia if not implemented in jsdom
 if (typeof window !== "undefined") {
