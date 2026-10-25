@@ -5,11 +5,11 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { isDepartmentAdmin } from "@/utils/roles";
 import { InventoryProvider, useInventory } from "@/context/InventoryContext";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { Topbar } from "@/components/layout/Topbar";
-import { ApiErrorBanner } from "@/components/layout/ApiErrorBanner";
-import { DepartmentAdminBanner } from "@/components/layout/DepartmentAdminBanner";
-import { SessionCheckScreen } from "@/components/auth/SessionCheckScreen";
+import { Sidebar } from "../../components/layout/Sidebar";
+import { Topbar } from "../../components/layout/Topbar";
+import { ApiErrorBanner } from "../../components/layout/ApiErrorBanner";
+import { DepartmentAdminBanner } from "../../components/layout/DepartmentAdminBanner";
+import { SessionCheckScreen } from "../../components/auth/SessionCheckScreen";
 import { isPendingLoan } from "@/utils/loans";
 
 function ProtectedShell({ children, effectiveUser }: { children: React.ReactNode; effectiveUser: import("@/types").User }) {
