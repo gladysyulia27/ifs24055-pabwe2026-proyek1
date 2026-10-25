@@ -12,36 +12,6 @@ pipeline {
         disableConcurrentBuilds(abortPrevious: true)
     }
 
-    parameters {
-        string(
-            name: 'URL_REDEPLOY',
-            defaultValue: '',
-            description: 'URL endpoint API redeployment (didapatkan dari dashboard Delcom Cloud)'
-        )
-        string(
-            name: 'URL_PROGRESS',
-            defaultValue: '',
-            description: 'URL endpoint API pengecekan progress deployment'
-        )
-        string(
-            name: 'WEBSITE_ID',
-            defaultValue: '6f1182cb-6a5a-4796-bd99-cb2c41133a1e',
-            description: 'UUID website target pada Delcom Cloud (ifs24055-pabwe2026-proyek1.s1if.cloud)'
-        )
-        password(
-            name: 'DEPLOY_TOKEN',
-            defaultValue: '',
-            description: 'Token akses deployment dari dashboard Delcom Cloud'
-        )
-    }
-
-    environment {
-        URL_REDEPLOY = "${params.URL_REDEPLOY ?: env.URL_REDEPLOY ?: ''}"
-        URL_PROGRESS = "${params.URL_PROGRESS ?: env.URL_PROGRESS ?: ''}"
-        WEBSITE_ID = "${params.WEBSITE_ID ?: env.WEBSITE_ID ?: '6f1182cb-6a5a-4796-bd99-cb2c41133a1e'}"
-        DEPLOY_TOKEN = "${params.DEPLOY_TOKEN ?: env.DEPLOY_TOKEN ?: ''}"
-    }
-
     stages {
 
         // ============================================================
@@ -374,39 +344,6 @@ pipeline {
                     echo "Artifact URL:"
                     echo "${env.ARTIFACT_URL}"
 
-                    def urlRedeploy = "${env.URL_REDEPLOY ?: params.URL_REDEPLOY ?: ''}".trim()
-                    def urlProgress = "${env.URL_PROGRESS ?: params.URL_PROGRESS ?: ''}".trim()
-                    def deployToken = "${env.DEPLOY_TOKEN ?: params.DEPLOY_TOKEN ?: ''}".trim()
-                    def websiteId = "${env.WEBSITE_ID ?: params.WEBSITE_ID ?: '6f1182cb-6a5a-4796-bd99-cb2c41133a1e'}".trim()
-
-                    if (!urlRedeploy || !deployToken || !websiteId) {
-                        echo "=========================================="
-                        echo "  ℹ️  DEPLOYMENT CONFIGURATION NOTICE"
-                        echo "=========================================="
-                        echo "Variabel deployment belum lengkap pada build environment:"
-                        echo " - URL_REDEPLOY : ${urlRedeploy ? 'OK (' + urlRedeploy + ')' : 'BELUM DIISI'}"
-                        echo " - URL_PROGRESS : ${urlProgress ? 'OK (' + urlProgress + ')' : 'BELUM DIISI'}"
-                        echo " - DEPLOY_TOKEN : ${deployToken ? 'OK (terkonfigurasi)' : 'BELUM DIISI'}"
-                        echo " - WEBSITE_ID   : ${websiteId ? 'OK (' + websiteId + ')' : 'BELUM DIISI'}"
-                        echo ""
-                        echo "ℹ️  Paket aplikasi telah berhasil di-bundle dan di-publish ke:"
-                        echo "   ${env.ARTIFACT_URL}"
-                        echo ""
-                        echo "ℹ️  Untuk mengaktifkan automated redeployment:"
-                        echo "   Silakan masukkan URL_REDEPLOY, URL_PROGRESS, dan DEPLOY_TOKEN"
-                        echo "   melalui 'Build with Parameters' atau 'Configure Project' di Jenkins."
-                        echo "=========================================="
-                        return
-                    }
-
-                    withEnv([
-                        "URL_REDEPLOY=${urlRedeploy}",
-                        "URL_PROGRESS=${urlProgress}",
-                        "DEPLOY_TOKEN=${deployToken}",
-                        "WEBSITE_ID=${websiteId}",
-                        "ARTIFACT_URL=${env.ARTIFACT_URL}"
-                    ]) {
-
                     // ==================================================
                     // 1. REQUEST REDEPLOYMENT
                     // ==================================================
@@ -549,7 +486,6 @@ pipeline {
                     echo "=========================================="
                     echo "       DEPLOYMENT FINISHED"
                     echo "=========================================="
-                    }
                 }
             }
         }
