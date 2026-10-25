@@ -237,6 +237,7 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
   // Tangani 401 Unauthorized (token kedaluwarsa atau sesi tidak valid)
   if (response.status === 401) {
+    removeStoredToken();
     const msg =
       typeof data?.error === "string"
         ? data.error
