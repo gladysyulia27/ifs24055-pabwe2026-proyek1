@@ -213,23 +213,23 @@ pipeline {
                     rm -f latest-app.zip
 
                     zip -r latest-app.zip . \
-                        -x "node_modules/*" \
-                        -x ".git/*" \
+                        -x "*node_modules/*" \
+                        -x "*.git/*" \
                         -x ".env" \
                         -x ".env.*" \
-                        -x "coverage/*" \
-                        -x ".next/*" \
-                        -x "out/*" \
-                        -x ".nuxt/*" \
-                        -x ".output/*" \
-                        -x ".svelte-kit/*" \
-                        -x ".angular/*" \
-                        -x "dist/*" \
-                        -x "build/*" \
-                        -x ".trivy-cache/*" \
+                        -x "*coverage/*" \
+                        -x "*.next/*" \
+                        -x "*out/*" \
+                        -x "*.nuxt/*" \
+                        -x "*.output/*" \
+                        -x "*.svelte-kit/*" \
+                        -x "*.angular/*" \
+                        -x "*dist/*" \
+                        -x "*build/*" \
+                        -x "*.trivy-cache/*" \
                         -x "latest-app.zip" \
                         -x "trivy-results.sarif" \
-                        -x ".docs/*"
+                        -x "*.docs/*"
 
                     echo "=== Application Package Created ==="
 
