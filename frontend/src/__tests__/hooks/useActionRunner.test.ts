@@ -40,4 +40,28 @@ describe("useActionRunner hook", () => {
     expect(showToast).toHaveBeenCalledWith("Stok tidak mencukupi");
     expect(refresh).not.toHaveBeenCalled();
   });
+
+  it("rethrows error when rethrow option is true", async () => {
+    const refresh = vi.fn();
+    const showToast = vi.fn();
+    const action = vi.fn().mockRejectedValue(new Error("Fatal error"));
+
+    const { result } = renderHook(() => useActionRunner(refresh, showToast));
+
+    let caught: unknown;
+    await act(async () => {
+      try {
+        await result.current(action, {
+          success: "Berhasil",
+          fallbackError: "Gagal",
+          rethrow: true
+        });
+      } catch (err) {
+        caught = err;
+      }
+    });
+
+    expect(caught).toBeInstanceOf(Error);
+    expect(showToast).toHaveBeenCalledWith("Fatal error");
+  });
 });

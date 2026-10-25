@@ -18,7 +18,9 @@ describe("Validation Utilities (Synchronized with Backend)", () => {
       expect(isValidEmail("student@gmail.com")).toBe(true);
     });
 
-    it("rejects invalid email formats", () => {
+    it("rejects invalid email formats and empty input", () => {
+      expect(isValidEmail("")).toBe(false);
+      expect(isValidEmail("a".repeat(101))).toBe(false);
       expect(isValidEmail("invalid-email")).toBe(false);
       expect(isValidEmail("@del.ac.id")).toBe(false);
       expect(isValidEmail("user@")).toBe(false);
@@ -33,7 +35,8 @@ describe("Validation Utilities (Synchronized with Backend)", () => {
       expect(isValidUsername("user_del")).toBe(true);
     });
 
-    it("rejects invalid characters and out-of-range lengths", () => {
+    it("rejects invalid characters, empty input, and out-of-range lengths", () => {
+      expect(isValidUsername("")).toBe(false);
       expect(isValidUsername("ab")).toBe(false); // too short
       expect(isValidUsername("user@name")).toBe(false); // invalid symbol
       expect(isValidUsername("a".repeat(31))).toBe(false); // too long
@@ -89,6 +92,18 @@ describe("Validation Utilities (Synchronized with Backend)", () => {
       expect(validateRegisterForm(validForm)).toBeNull();
     });
 
+    it("rejects empty fields in form", () => {
+      expect(
+        validateRegisterForm({
+          username: "",
+          email: "",
+          password: "",
+          full_name: "",
+          identifier: ""
+        })
+      ).toBe("Username harus memiliki panjang antara 3 hingga 30 karakter.");
+    });
+
     it("rejects short username", () => {
       expect(validateRegisterForm({ ...validForm, username: "ab" })).toBe(
         "Username harus memiliki panjang antara 3 hingga 30 karakter."
@@ -101,9 +116,52 @@ describe("Validation Utilities (Synchronized with Backend)", () => {
       );
     });
 
-    it("rejects short password", () => {
-      expect(validateRegisterForm({ ...validForm, password: "123" })).toBe(
-        "Password minimal 6 karakter."
+    it("rejects long username or invalid characters", () => {
+      expect(validateRegisterForm({ ...validForm, username: "a".repeat(31) })).toBe(
+        "Username harus memiliki panjang antara 3 hingga 30 karakter."
+      );
+      expect(validateRegisterForm({ ...validForm, username: "user@invalid!" })).toBe(
+        "Username hanya boleh mengandung huruf, angka, titik (.), strip (-), atau garis bawah (_)."
+      );
+    });
+
+    it("rejects email exceeding 100 characters", () => {
+      expect(validateRegisterForm({ ...validForm, email: "a".repeat(95) + "@del.ac.id" })).toContain(
+        "Format alamat email tidak valid"
+      );
+    });
+
+    it("rejects password exceeding 128 characters", () => {
+      expect(validateRegisterForm({ ...validForm, password: "a".repeat(129) })).toBe(
+        "Password maksimal 128 karakter."
+      );
+    });
+
+    it("rejects full name that is too short or too long", () => {
+      expect(validateRegisterForm({ ...validForm, full_name: "A" })).toBe(
+        "Nama lengkap harus memiliki panjang antara 2 hingga 100 karakter."
+      );
+      expect(validateRegisterForm({ ...validForm, full_name: "A".repeat(101) })).toBe(
+        "Nama lengkap harus memiliki panjang antara 2 hingga 100 karakter."
+      );
+    });
+
+    it("rejects identifier that is out of bounds or contains invalid symbols", () => {
+      expect(validateRegisterForm({ ...validForm, identifier: "12" })).toBe(
+        "NIM/NIP harus memiliki panjang antara 3 hingga 30 karakter."
+      );
+      expect(validateRegisterForm({ ...validForm, identifier: "1".repeat(31) })).toBe(
+        "NIM/NIP harus memiliki panjang antara 3 hingga 30 karakter."
+      );
+      expect(validateRegisterForm({ ...validForm, identifier: "NIM@#$%" })).toBe(
+        "Format NIM/NIP tidak valid (hanya alfanumerik, strip, garis miring, atau titik)."
+      );
+    });
+
+    it("validates optional phone number when present", () => {
+      expect(validateRegisterForm({ ...validForm, contact_phone: "08123456789" })).toBeNull();
+      expect(validateRegisterForm({ ...validForm, contact_phone: "invalid-phone" })).toBe(
+        "Format nomor kontak tidak valid (contoh: 08123456789 atau +628123456789)."
       );
     });
   });
@@ -116,6 +174,7 @@ describe("Validation Utilities (Synchronized with Backend)", () => {
 
     it("rejects empty item name", () => {
       expect(validateItemForm({ name: "   ", total_stock: "5" })).toBe("Nama barang wajib diisi.");
+      expect(validateItemForm({ name: "", total_stock: "5" })).toBe("Nama barang wajib diisi.");
     });
 
     it("rejects negative or invalid stock", () => {
@@ -123,6 +182,9 @@ describe("Validation Utilities (Synchronized with Backend)", () => {
         "Stok harus berupa bilangan bulat non-negatif."
       );
       expect(validateItemForm({ name: "Kamera", total_stock: "abc" })).toBe(
+        "Stok harus berupa bilangan bulat non-negatif."
+      );
+      expect(validateItemForm({ name: "Kamera", total_stock: 2.5 })).toBe(
         "Stok harus berupa bilangan bulat non-negatif."
       );
     });
@@ -151,11 +213,23 @@ describe("Validation Utilities (Synchronized with Backend)", () => {
       expect(validateLoanForm({ ...validLoan, quantity: "0" })).toBe(
         "Jumlah pinjam minimal 1 unit."
       );
+      expect(validateLoanForm({ ...validLoan, quantity: "1.5" })).toBe(
+        "Jumlah pinjam minimal 1 unit."
+      );
     });
 
     it("rejects quantity exceeding available stock", () => {
       expect(validateLoanForm({ ...validLoan, quantity: "6" })).toBe(
         "Stok tersedia hanya 5 unit."
+      );
+    });
+
+    it("rejects missing dates", () => {
+      expect(validateLoanForm({ ...validLoan, start_date: "" })).toBe(
+        "Tanggal mulai dan batas pengembalian wajib ditentukan."
+      );
+      expect(validateLoanForm({ ...validLoan, due_date: "" })).toBe(
+        "Tanggal mulai dan batas pengembalian wajib ditentukan."
       );
     });
 
@@ -174,11 +248,15 @@ describe("Validation Utilities (Synchronized with Backend)", () => {
     it("strips script tags and encodes dangerous HTML characters", () => {
       expect(sanitizeInput("<script>alert('xss')</script>Kamera")).toBe("Kamera");
       expect(sanitizeInput("<b>Proyektor</b>")).toBe("&lt;b&gt;Proyektor&lt;&#x2F;b&gt;");
+      expect(sanitizeInput('<a href="test&value">Link</a>')).toBe('&lt;a href=&quot;test&amp;value&quot;&gt;Link&lt;&#x2F;a&gt;');
+      expect(sanitizeInput("It's a test")).toBe("It&#x27;s a test");
     });
 
-    it("strips inline event handlers and pseudo-protocols", () => {
+    it("strips inline event handlers, style tags, and pseudo-protocols", () => {
       expect(sanitizeInput('<img src="x" onerror="alert(1)">')).toBe('&lt;img src=&quot;x&quot; &gt;');
       expect(sanitizeInput('javascript:alert(1)')).toBe('alert(1)');
+      expect(sanitizeInput('vbscript:msgbox(1)')).toBe('msgbox(1)');
+      expect(sanitizeInput('<style>body { color: red; }</style>Text')).toBe('Text');
     });
 
     it("handles empty or non-string gracefully", () => {

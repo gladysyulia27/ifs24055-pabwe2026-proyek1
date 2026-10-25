@@ -62,4 +62,21 @@ describe("useFormSubmission hook", () => {
     expect(onClose).not.toHaveBeenCalled();
     expect(result.current.loading).toBe(false);
   });
+
+  it("handles non-Error rejection with fallback error message", async () => {
+    const onClose = vi.fn();
+    const onErrorToast = vi.fn();
+    const action = vi.fn().mockRejectedValue("String rejection");
+
+    const { result } = renderHook(() =>
+      useFormSubmission({ onClose, onErrorToast })
+    );
+
+    await act(async () => {
+      await result.current.submit(null, action);
+    });
+
+    expect(result.current.error).toBe("Terjadi kesalahan saat memproses formulir.");
+    expect(onErrorToast).toHaveBeenCalledWith("Terjadi kesalahan saat memproses formulir.");
+  });
 });

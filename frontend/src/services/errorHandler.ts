@@ -19,10 +19,12 @@ export class ServiceError extends Error {
   ) {
     super(message);
     this.name = "ServiceError";
+    this.message = message;
     this.status = status;
     this.isNetworkError = options?.isNetworkError ?? false;
     this.isValidationError = options?.isValidationError ?? false;
     this.originalError = options?.originalError;
+    Object.setPrototypeOf(this, ServiceError.prototype);
   }
 }
 

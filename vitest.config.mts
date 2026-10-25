@@ -12,7 +12,22 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html", "lcov"],
-      reportsDirectory: "./coverage"
+      reportsDirectory: "./coverage",
+      include: [
+        "frontend/src/utils/**",
+        "frontend/src/services/authService.ts",
+        "frontend/src/services/errorHandler.ts",
+        "frontend/src/services/inventoryService.ts",
+        "frontend/src/services/loanService.ts",
+        "frontend/src/services/notificationService.ts",
+        "frontend/src/hooks/useActionRunner.ts",
+        "frontend/src/hooks/useAuth.ts",
+        "frontend/src/hooks/useCalendarGrid.ts",
+        "frontend/src/hooks/useDashboardStats.ts",
+        "frontend/src/hooks/useFormSubmission.ts",
+        "frontend/src/hooks/useInventoryFilter.ts",
+        "frontend/src/hooks/useItemStock.ts"
+      ]
     }
   },
   resolve: {

@@ -97,4 +97,17 @@ describe("useDashboardStats hook", () => {
     expect(diptek?.itemCount).toBe(1);
     expect(diptek?.totalUnits).toBe(4);
   });
+
+  it("handles loans with missing or invalid quantity gracefully", () => {
+    const invalidQtyLoans: Loan[] = [
+      {
+        ...loans[0],
+        quantity: 0
+      } as Loan
+    ];
+    const { result } = renderHook(() =>
+      useDashboardStats(departments, items, invalidQtyLoans)
+    );
+    expect(result.current.activeBorrowedUnits).toBe(0);
+  });
 });

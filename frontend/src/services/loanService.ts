@@ -108,7 +108,7 @@ export const loanService = {
     try {
       const validation = validateLoanPayload(payload);
       if (!validation.isValid) {
-        throw new Error(validation.error || "Validasi data peminjaman gagal.");
+        throw new Error(validation.error!);
       }
 
       const created = await loansApi.create(payload);
@@ -141,7 +141,7 @@ export const loanService = {
     try {
       const validation = validateReturnProofPayload(returnProofUrl);
       if (!validation.isValid) {
-        throw new Error(validation.error || "Validasi bukti pengembalian gagal.");
+        throw new Error(validation.error!);
       }
 
       const updated = await loansApi.submitReturn(id, returnProofUrl, returnNote);

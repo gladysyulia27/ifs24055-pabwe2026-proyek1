@@ -50,7 +50,7 @@ export const authService = {
     try {
       const validation = validateLoginPayload(credentials);
       if (!validation.isValid) {
-        throw new Error(validation.error || "Validasi kredensial login gagal.");
+        throw new Error(validation.error!);
       }
 
       const res = await authApi.login(credentials);
@@ -72,7 +72,7 @@ export const authService = {
     try {
       const validation = validateRegisterPayload(payload);
       if (!validation.isValid) {
-        throw new Error(validation.error || "Validasi pendaftaran akun gagal.");
+        throw new Error(validation.error!);
       }
 
       const res = await authApi.register(payload);

@@ -50,5 +50,11 @@ describe("Notification Service Layer", () => {
       const res = await notificationService.getNotifications();
       expect(res).toEqual({ due_returns: [], pending: [] });
     });
+
+    it("throws ServiceError when API call fails", async () => {
+      vi.spyOn(notificationsApi, "getNotifications").mockRejectedValue(new Error("Network failed"));
+
+      await expect(notificationService.getNotifications()).rejects.toThrowError();
+    });
   });
 });

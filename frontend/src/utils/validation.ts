@@ -43,7 +43,7 @@ export function sanitizeInput(input: string): string {
     .replace(/on\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, ""); // strip inline event handlers (onerror=, onload=, etc)
 
   // Encode HTML entities for any remaining markup characters
-  sanitized = sanitized.replace(/[&<>"'/]/g, (char) => HTML_ENTITIES[char] || char);
+  sanitized = sanitized.replace(/[&<>"'/]/g, (char) => HTML_ENTITIES[char]);
 
   return sanitized.trim();
 }

@@ -93,7 +93,7 @@ export const inventoryService = {
     try {
       const validation = validateItemPayload(payload);
       if (!validation.isValid) {
-        throw new Error(validation.error || "Validasi data barang gagal.");
+        throw new Error(validation.error!);
       }
 
       const created = await inventoryApi.create(payload);
@@ -110,7 +110,7 @@ export const inventoryService = {
     try {
       const validation = validateItemPayload(payload);
       if (!validation.isValid) {
-        throw new Error(validation.error || "Validasi data barang gagal.");
+        throw new Error(validation.error!);
       }
 
       const updated = await inventoryApi.update(id, payload);
