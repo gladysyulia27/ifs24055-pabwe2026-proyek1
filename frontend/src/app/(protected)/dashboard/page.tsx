@@ -19,6 +19,8 @@ export default function DashboardPage() {
         else if (page === "Peminjaman") router.push("/loans");
         else if (page === "Kalender") router.push("/calendar");
         else if (page === "Departemen") router.push("/departments");
+        else if (page === "Profil") router.push("/profile");
+        else if (page === "Dashboard") router.push("/dashboard");
       }}
       onSelectDepartment={(dept) => {
         router.push(`/inventory?dept=${encodeURIComponent(dept)}`);

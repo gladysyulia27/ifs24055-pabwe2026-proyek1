@@ -13,8 +13,7 @@ const mockUser: User = {
   role: "admin_departemen",
   department_id: 1,
   department_name: "DEPKOMINFO",
-  contact_phone: "08123456789",
-  created_at: "2026-10-01T00:00:00Z"
+  contact_phone: "08123456789"
 };
 
 const mockDepartments: Department[] = [

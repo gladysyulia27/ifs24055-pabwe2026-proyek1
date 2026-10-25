@@ -12,9 +12,8 @@ describe("Notification Service Layer", () => {
             id: 1,
             inventory_name: "Proyektor",
             borrower_name: "Gladys",
-            due_date: "2026-10-25",
-            days_left: 1,
-            is_overdue: false
+            department_name: "DESARPRAS",
+            due_date: "2026-10-25"
           }
         ],
         pending: [
@@ -22,9 +21,7 @@ describe("Notification Service Layer", () => {
             id: 2,
             inventory_name: "Kamera",
             borrower_name: "Rio",
-            organization: "BEM",
-            quantity: 1,
-            start_date: "2026-10-25"
+            department_name: "DEPKOMINFO"
           }
         ]
       };

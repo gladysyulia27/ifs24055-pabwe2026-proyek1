@@ -9,6 +9,7 @@ const mockLoans: Loan[] = [
     id: 1,
     inventory_id: 10,
     inventory_name: "Proyektor Epson EB-X500",
+    department_name: "DESARPRAS",
     borrower_name: "Gladys Manurung",
     borrower_id: "11422001",
     borrower_contact: "08123456789",
@@ -17,13 +18,15 @@ const mockLoans: Loan[] = [
     quantity: 1,
     start_date: "2026-10-15",
     due_date: "2026-10-18",
-    status: "approved",
+    status: "Disetujui",
+    return_proof_url: "",
     created_at: "2026-10-14T10:00:00Z"
   },
   {
     id: 2,
     inventory_id: 11,
     inventory_name: "Sound System Portable",
+    department_name: "DESARPRAS",
     borrower_name: "Rio Silalahi",
     borrower_id: "11422002",
     borrower_contact: "08123456780",
@@ -32,7 +35,8 @@ const mockLoans: Loan[] = [
     quantity: 2,
     start_date: "2026-10-20",
     due_date: "2026-10-20",
-    status: "approved",
+    status: "Disetujui",
+    return_proof_url: "",
     created_at: "2026-10-19T10:00:00Z"
   }
 ];

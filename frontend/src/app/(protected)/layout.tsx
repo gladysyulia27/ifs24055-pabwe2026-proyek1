@@ -33,7 +33,9 @@ function ProtectedShell({ children }: { children: React.ReactNode }) {
 
   const getPageTitle = () => {
     if (pathname.includes("/inventory")) return "Inventori";
-    if (pathname.includes("/loans")) return "Peminjaman";
+    if (pathname.includes("/loans") || pathname.includes("/loan")) {
+      return isDepartmentAdmin(user) ? "Persetujuan Peminjaman" : "Peminjaman Saya";
+    }
     if (pathname.includes("/calendar")) return "Kalender";
     if (pathname.includes("/departments")) return "Departemen";
     if (pathname.includes("/profile")) return "Profil Akun";

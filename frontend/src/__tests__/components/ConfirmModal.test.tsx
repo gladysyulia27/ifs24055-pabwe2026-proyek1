@@ -62,6 +62,7 @@ describe("ConfirmModal Component", () => {
       <ConfirmModal
         isOpen={false}
         onClose={() => {}}
+        onConfirm={() => {}}
         title="Test"
         message="Not visible"
       />
