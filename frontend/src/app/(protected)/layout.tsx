@@ -93,37 +93,13 @@ export default function ProtectedRouteLayout({ children }: { children: React.Rea
   const pathname = usePathname();
 
   useEffect(() => {
-    // Only redirect if auth checking has completed and there is definitively no token/session
     if (!authChecking && !user) {
-      const hasToken = typeof window !== "undefined" && (
-        document.cookie.includes("token") ||
-        document.cookie.includes("bem_inventory_token") ||
-        document.cookie.includes("bem_user") ||
-        Boolean(localStorage.getItem("bem_inventory_token")) ||
-        Boolean(localStorage.getItem("token")) ||
-        Boolean(localStorage.getItem("bem_user"))
-      );
-      if (!hasToken) {
-        const redirectQuery = pathname && pathname !== "/" ? `?redirect=${encodeURIComponent(pathname)}` : "";
-        router.replace(`/login${redirectQuery}`);
-      }
+      const redirectQuery = pathname && pathname !== "/" ? `?redirect=${encodeURIComponent(pathname)}` : "";
+      router.replace(`/login${redirectQuery}`);
     }
   }, [user, authChecking, router, pathname]);
 
-  // If auth is still checking or no user yet, check if token/cookie exists
   if (authChecking || !user) {
-    const hasTokenOrCookie = typeof window !== "undefined" && (
-      document.cookie.includes("token") ||
-      document.cookie.includes("bem_inventory_token") ||
-      document.cookie.includes("bem_user") ||
-      Boolean(localStorage.getItem("bem_inventory_token")) ||
-      Boolean(localStorage.getItem("token")) ||
-      Boolean(localStorage.getItem("bem_user"))
-    );
-    // If token exists, display the session check screen with 200 OK while hydrating, never redirect
-    if (hasTokenOrCookie) {
-      return <SessionCheckScreen />;
-    }
     return <SessionCheckScreen />;
   }
 

@@ -24,9 +24,25 @@ function LoginContent() {
   const { toast, showToast, hideToast } = useToast();
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [loginValues, setLoginValues] = useState<LoginCredentials>({ username_or_email: "", password: "" });
 
   const redirectPath = searchParams.get("redirect") || "/dashboard";
+
+  useEffect(() => {
+    if (searchParams.get("registered") === "true") {
+      const msg = "Pendaftaran akun berhasil! Silakan masuk dengan akun baru Anda untuk membuka Dashboard.";
+      setSuccessMsg(msg);
+      showToast(msg);
+    }
+    const regUser = searchParams.get("username");
+    if (regUser) {
+      setLoginValues((prev) => ({
+        ...prev,
+        username_or_email: regUser
+      }));
+    }
+  }, [searchParams, showToast]);
 
   useEffect(() => {
     if (!authChecking && user) {
@@ -50,12 +66,7 @@ function LoginContent() {
     try {
       const loggedUser = await login(values.username_or_email, values.password);
       showToast(`Selamat datang, ${loggedUser.full_name}!`);
-      // Hard navigation ensures browser/headless audit immediately captures session cookies & storage
-      if (typeof window !== "undefined") {
-        window.location.href = redirectPath;
-      } else {
-        router.replace(redirectPath);
-      }
+      router.replace(redirectPath);
     } catch (err) {
       const msg = getErrorMessage(err, "Gagal masuk ke sistem.");
       setErrorMsg(msg);
@@ -91,6 +102,7 @@ function LoginContent() {
               <p>Masukkan username atau email dan password Anda untuk mengakses sistem manajemen inventori.</p>
             </div>
 
+            {successMsg && <div className="auth-success-banner">{successMsg}</div>}
             {errorMsg && <div className="auth-error-banner">{errorMsg}</div>}
 
             <LoginForm values={loginValues} loading={authLoading} onChange={setLoginValues} onSubmit={handleLogin} />

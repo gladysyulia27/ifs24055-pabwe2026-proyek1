@@ -2,14 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { User } from "@/types";
-import {
-  authService,
-  getStoredToken,
-  setStoredToken,
-  removeStoredToken,
-  getStoredUser,
-  setStoredUser
-} from "@/services";
+import { authService, getStoredToken, setStoredToken, removeStoredToken } from "@/services";
 
 interface AuthContextType {
   user: User | null;
@@ -41,37 +34,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Load user session on mount
   useEffect(() => {
-    // 1. Instant synchronous check from cookie / localStorage
-    const cachedUser = getStoredUser();
-    if (cachedUser) {
-      setUser(cachedUser);
-    }
-
     const savedToken = getStoredToken();
     if (savedToken) {
       setToken(savedToken);
-      // If we already have a cached user, we can mark authChecking as false immediately!
-      if (cachedUser) {
-        setAuthChecking(false);
-      }
       authService
         .getMe()
         .then((userData) => {
-          if (userData) {
-            setUser(userData);
-            setStoredUser(userData);
-          } else {
-            removeStoredToken();
-            setUser(null);
-          }
+          if (userData) setUser(userData);
+          else removeStoredToken();
         })
         .catch(() => {
-          // If token exists, don't wipe user if network has delay in headless bot
-          if (!getStoredUser()) {
-            removeStoredToken();
-            setToken(null);
-            setUser(null);
-          }
+          removeStoredToken();
+          setToken(null);
+          setUser(null);
         })
         .finally(() => {
           setAuthChecking(false);
@@ -80,15 +55,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setAuthChecking(false);
     }
 
-    // Load demo accounts with fallback error handling
+    // Load demo accounts
     authService
       .getDemoAccounts()
       .then((accs) => {
         if (Array.isArray(accs)) setDemoAccounts(accs);
       })
-      .catch(() => {
-        setDemoAccounts([]);
-      });
+      .catch(() => {});
   }, []);
 
   const login = useCallback(async (usernameOrEmail: string, password: string): Promise<User> => {
@@ -96,7 +69,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const data = await authService.login({ username_or_email: usernameOrEmail, password });
       setStoredToken(data.token);
-      setStoredUser(data.user);
       setToken(data.token);
       setUser(data.user);
       return data.user;
@@ -121,10 +93,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           role: "mahasiswa",
           department_id: null
         });
-        setStoredToken(data.token);
-        setStoredUser(data.user);
-        setToken(data.token);
-        setUser(data.user);
+        // Sesuai alur: register -> login -> dashboard,
+        // jangan langsung mengaktifkan sesi login di AuthContext
         return data.user;
       } finally {
         setAuthLoading(false);
@@ -136,9 +106,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async (): Promise<void> => {
     try {
       await authService.logout();
-    } catch (err: unknown) {
-      // In case network disconnects, continue clearing client session so user is logged out
-      void err;
+    } catch {
+      // Continue client logout even if backend failed
     } finally {
       removeStoredToken();
       setToken(null);

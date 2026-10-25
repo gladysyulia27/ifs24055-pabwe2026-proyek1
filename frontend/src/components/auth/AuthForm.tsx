@@ -71,13 +71,19 @@ export function AuthForm({ onSuccess, onErrorToast }: AuthFormProps) {
       "Gagal masuk ke sistem."
     );
 
-  const handleRegister = (values: RegisterPayload) =>
-    authenticate(
-      validateRegisterForm(values),
-      () => register(values),
-      (user) => `Pendaftaran berhasil! Selamat datang, ${user.full_name}.`,
-      "Pendaftaran gagal."
-    );
+  const handleRegister = async (values: RegisterPayload) => {
+    const validationErr = validateRegisterForm(values);
+    if (validationErr) return reportError(validationErr);
+    setErrorMsg(null);
+    try {
+      await register(values);
+      switchTab("login");
+      setLoginValues((prev) => ({ ...prev, username_or_email: values.username }));
+      onSuccess?.("Pendaftaran berhasil! Silakan masuk dengan akun baru Anda.");
+    } catch (err) {
+      reportError(getErrorMessage(err, "Pendaftaran gagal."));
+    }
+  };
 
   const fillDemoLogin = (email: string) => {
     setLoginValues({ username_or_email: email, password: DEMO_PASSWORD });
