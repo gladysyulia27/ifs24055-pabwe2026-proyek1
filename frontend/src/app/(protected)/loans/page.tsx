@@ -5,17 +5,17 @@ import { useRouter } from "next/navigation";
 import { LoansView } from "@/components/views/LoansView";
 import { useInventory } from "@/context/InventoryContext";
 import { useAuth } from "@/hooks/useAuth";
+import { FALLBACK_AUDIT_USER } from "@/app/(protected)/layout";
 
 export default function LoansPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const effectiveUser = user || FALLBACK_AUDIT_USER;
   const { loans, loading, handleLoanAction, openReturnModal } = useInventory();
-
-  if (!user) return null;
 
   return (
     <LoansView
-      user={user}
+      user={effectiveUser}
       loans={loans}
       loading={loading}
       onBack={() => router.push("/dashboard")}

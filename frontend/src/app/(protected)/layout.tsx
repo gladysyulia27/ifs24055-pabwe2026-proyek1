@@ -87,7 +87,7 @@ function ProtectedShell({ children, effectiveUser }: { children: React.ReactNode
   );
 }
 
-const FALLBACK_AUDIT_USER: import("@/types").User = {
+export const FALLBACK_AUDIT_USER: import("@/types").User = {
   id: 1,
   username: "mahasiswa",
   email: "mahasiswa@del.ac.id",

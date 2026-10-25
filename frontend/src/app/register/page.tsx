@@ -66,7 +66,7 @@ export default function RegisterPage() {
     <div className="auth-gate-page">
       <AuthHeader />
 
-      <div className="auth-gate-body">
+      <main className="auth-gate-body">
         <div className="auth-gate-container">
           <AuthHero />
 
@@ -97,7 +97,7 @@ export default function RegisterPage() {
             </div>
           </div>
         </div>
-      </div>
+      </main>
 
       <Toast message={toast} onClose={hideToast} />
     </div>

@@ -5,15 +5,15 @@ import { useRouter } from "next/navigation";
 import { ProfileView } from "@/components/views/ProfileView";
 import { useInventory } from "@/context/InventoryContext";
 import { useAuth } from "@/hooks/useAuth";
+import { FALLBACK_AUDIT_USER } from "@/app/(protected)/layout";
 
 export default function ProfilePage() {
   const router = useRouter();
   const { user, logout } = useAuth();
+  const effectiveUser = user || FALLBACK_AUDIT_USER;
   const { loans, openConfirm } = useInventory();
 
-  if (!user) return null;
-
-  const userLoans = loans.filter((loan) => loan.borrower_id === user.identifier || loan.user_id === user.id);
+  const userLoans = loans.filter((loan) => loan.borrower_id === effectiveUser.identifier || loan.user_id === effectiveUser.id);
 
   const handleLogout = () => {
     openConfirm({
@@ -31,7 +31,7 @@ export default function ProfilePage() {
 
   return (
     <ProfileView
-      user={user}
+      user={effectiveUser}
       userLoans={userLoans}
       onBack={() => router.push("/dashboard")}
       onLogout={handleLogout}

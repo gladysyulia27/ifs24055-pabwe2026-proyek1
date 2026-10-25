@@ -7,10 +7,13 @@ import { useInventory } from "@/context/InventoryContext";
 import { useAuth } from "@/hooks/useAuth";
 import { ALL_DEPARTMENTS } from "@/utils/inventory";
 
+import { FALLBACK_AUDIT_USER } from "@/app/(protected)/layout";
+
 function InventoryContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
+  const effectiveUser = user || FALLBACK_AUDIT_USER;
   const {
     departments,
     items,
@@ -30,11 +33,9 @@ function InventoryContent() {
     }
   }, [searchParams]);
 
-  if (!user) return null;
-
   return (
     <InventoryView
-      user={user}
+      user={effectiveUser}
       departments={departments}
       items={items}
       loading={loading}

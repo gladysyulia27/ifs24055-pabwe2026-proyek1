@@ -110,7 +110,8 @@ export default function LandingPage() {
         </section>
 
         {/* Features Grid */}
-        <section className="landing-features-section">
+        <section className="landing-features-section" aria-label="Fitur Unggulan Sistem">
+          <h2 className="sr-only">Fitur Unggulan Sistem Inventori BEM IT Del</h2>
           <div className="landing-features-grid">
             {features.map((f, i) => (
               <div key={i} className="panel landing-feature-card">

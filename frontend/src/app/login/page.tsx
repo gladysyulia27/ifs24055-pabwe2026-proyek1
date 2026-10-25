@@ -90,7 +90,7 @@ function LoginContent() {
     <div className="auth-gate-page">
       <AuthHeader />
 
-      <div className="auth-gate-body">
+      <main className="auth-gate-body">
         <div className="auth-gate-container">
           <AuthHero />
 
@@ -124,7 +124,7 @@ function LoginContent() {
             <DemoAccounts accounts={demoAccounts} onSelect={fillDemoLogin} />
           </div>
         </div>
-      </div>
+      </main>
 
       <Toast message={toast} onClose={hideToast} />
     </div>
