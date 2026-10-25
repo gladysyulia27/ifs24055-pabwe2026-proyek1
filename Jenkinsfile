@@ -7,6 +7,9 @@ pipeline {
         skipDefaultCheckout(true)
         // Stop later stages if a publisher marks the build UNSTABLE/FAILURE mid-run
         skipStagesAfterUnstable()
+        // Satu proyek hanya boleh jalankan satu job.
+        // Jika ada build baru dipicu, build lama otomatis di-abort.
+        disableConcurrentBuilds(abortPrevious: true)
     }
 
     stages {
@@ -68,7 +71,13 @@ pipeline {
 
                     echo "=== Running Tests with Coverage ==="
 
-                    npx vitest run --coverage
+                    if [ -f angular.json ]; then
+                        echo "Framework: Angular"
+                        npx ng test --coverage
+                    else
+                        echo "Framework: React, Next.js, Vue, Nuxt, Svelte, or SvelteKit"
+                        npx vitest run --coverage
+                    fi
 
                     echo "=== Tests Passed ==="
                 '''
@@ -173,7 +182,7 @@ pipeline {
         // ============================================================
         stage('Quality Gate') {
             steps {
-                timeout(time: 30, unit: 'MINUTES') {
+                timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
             }
@@ -209,8 +218,14 @@ pipeline {
                         -x ".env" \
                         -x ".env.*" \
                         -x "coverage/*" \
-                        -x "dist/*" \
+                        -x ".next/*" \
                         -x "out/*" \
+                        -x ".nuxt/*" \
+                        -x ".output/*" \
+                        -x ".svelte-kit/*" \
+                        -x ".angular/*" \
+                        -x "dist/*" \
+                        -x "build/*" \
                         -x ".trivy-cache/*" \
                         -x "latest-app.zip" \
                         -x "trivy-results.sarif" \
