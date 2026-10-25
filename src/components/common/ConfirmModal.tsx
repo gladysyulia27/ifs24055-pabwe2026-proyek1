@@ -99,16 +99,19 @@ export function ConfirmModal({
   return (
     <div
       className="modal-backdrop"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="confirm-modal-title"
-      onMouseDown={(e) => {
+      role="presentation"
+      onClick={(e) => {
         if (e.target === e.currentTarget && !submitting) {
           onClose();
         }
       }}
     >
-      <div className="modal confirm-modal confirm-modal-box">
+      <div
+        className="modal confirm-modal confirm-modal-box"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-modal-title"
+      >
         <div className="confirm-modal-header">
           <div className={`confirm-icon-badge confirm-badge-${variant}`}>
             {getVariantIcon()}

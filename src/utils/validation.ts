@@ -34,16 +34,16 @@ const HTML_ENTITIES: Record<string, string> = {
 export function sanitizeInput(input: string): string {
   if (!input || typeof input !== "string") return "";
   let sanitized = input
-    .replace(/\0/g, "") // strip null bytes
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "") // strip script tags
-    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, "") // strip iframe tags
-    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "") // strip style tags
-    .replace(/javascript\s*:/gi, "") // strip javascript: pseudo-protocol
-    .replace(/vbscript\s*:/gi, "") // strip vbscript:
-    .replace(/on\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, ""); // strip inline event handlers (onerror=, onload=, etc)
+    .replaceAll("\0", "") // strip null bytes
+    .replaceAll(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "") // strip script tags
+    .replaceAll(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, "") // strip iframe tags
+    .replaceAll(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "") // strip style tags
+    .replaceAll(/javascript\s*:/gi, "") // strip javascript: pseudo-protocol
+    .replaceAll(/vbscript\s*:/gi, "") // strip vbscript:
+    .replaceAll(/on\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, ""); // strip inline event handlers (onerror=, onload=, etc)
 
   // Encode HTML entities for any remaining markup characters
-  sanitized = sanitized.replace(/[&<>"'/]/g, (char) => HTML_ENTITIES[char]);
+  sanitized = sanitized.replaceAll(/[&<>"'/]/g, (char) => HTML_ENTITIES[char]);
 
   return sanitized.trim();
 }

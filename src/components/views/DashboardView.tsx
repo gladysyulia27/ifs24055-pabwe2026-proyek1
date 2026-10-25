@@ -109,7 +109,12 @@ function DepartmentSummary({
         {summaries.map((department) => {
           const Icon = getDepartmentIcon(department.name);
           return (
-            <div className="dept-row" key={department.id} onClick={() => onSelectDepartment(department.name)}>
+            <button
+              type="button"
+              className="dept-row"
+              key={department.id}
+              onClick={() => onSelectDepartment(department.name)}
+            >
               <div className={`dept-badge ${getDepartmentColor(department.name)}`}>
                 <Icon size={18} />
               </div>
@@ -118,7 +123,7 @@ function DepartmentSummary({
                 <span>{department.itemCount} jenis barang</span>
               </div>
               <div className="dept-total">{department.totalUnits} unit</div>
-            </div>
+            </button>
           );
         })}
       </div>
