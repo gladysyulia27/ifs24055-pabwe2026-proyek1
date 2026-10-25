@@ -28,7 +28,7 @@ pipeline {
             defaultValue: '6f1182cb-6a5a-4796-bd99-cb2c41133a1e',
             description: 'UUID website target pada Delcom Cloud (ifs24055-pabwe2026-proyek1.s1if.cloud)'
         )
-        password(
+        string(
             name: 'DEPLOY_TOKEN',
             defaultValue: '',
             description: 'Token akses deployment dari dashboard Delcom Cloud'
@@ -375,10 +375,10 @@ pipeline {
                     echo "Artifact URL:"
                     echo "${env.ARTIFACT_URL}"
 
-                    def urlRedeploy = (env.URL_REDEPLOY ?: params.URL_REDEPLOY ?: '').trim()
-                    def urlProgress = (env.URL_PROGRESS ?: params.URL_PROGRESS ?: '').trim()
-                    def deployToken = (env.DEPLOY_TOKEN ?: params.DEPLOY_TOKEN ?: '').trim()
-                    def websiteId = (env.WEBSITE_ID ?: params.WEBSITE_ID ?: '6f1182cb-6a5a-4796-bd99-cb2c41133a1e').trim()
+                    def urlRedeploy = "${env.URL_REDEPLOY ?: params.URL_REDEPLOY ?: ''}".trim()
+                    def urlProgress = "${env.URL_PROGRESS ?: params.URL_PROGRESS ?: ''}".trim()
+                    def deployToken = "${env.DEPLOY_TOKEN ?: params.DEPLOY_TOKEN ?: ''}".trim()
+                    def websiteId = "${env.WEBSITE_ID ?: params.WEBSITE_ID ?: '6f1182cb-6a5a-4796-bd99-cb2c41133a1e'}".trim()
 
                     if (!urlRedeploy || !deployToken || !websiteId) {
                         echo "=========================================="
